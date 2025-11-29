@@ -1,9 +1,10 @@
-// ======== CONFIG: EDIT THESE ========
+/******************************************************
+ *  CONFIGURATION SECTION
+ *  - Set Spotify Client ID and Redirect URI
+ ******************************************************/
 const clientId = '059f04030bd14dfd9c5bcf508a373266';
-// sudo python3 -m http.server 8080 to host locally until moved to git pages
-const redirectUri = 'https://alexander-boutselis.github.io/project4_comp584/'; // or your GitHub Pages URL
-const scopes = 'user-read-email user-read-private';
-// ====================================
+const redirectUri = 'https://alexander-boutselis.github.io/project4_comp584/';
+const scopes = 'user-read-email user-read-private'; //Scopes = permissions you want from the user
 
 const authEndpoint = 'https://accounts.spotify.com/authorize';
 const tokenEndpoint = 'https://accounts.spotify.com/api/token';
@@ -14,8 +15,14 @@ const profileBtn = document.getElementById('profile-btn');
 const output     = document.getElementById('output');
 
 let accessToken = null;
+/*****************************************************/
 
-// --- Utility: random string for code_verifier ---
+
+/******************************************************
+ *  PKCE HELPER FUNCTIONS
+ *  - Generate code_verifier & code_challenge for PKCE
+ ******************************************************/
+//Generate a random string for PKCE code_verifier
 function generateRandomString(length) {
   const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~';
   let text = '';
@@ -25,20 +32,30 @@ function generateRandomString(length) {
   return text;
 }
 
-// --- Utility: SHA-256 then base64url encode (for code_challenge) ---
+// Compute SHA-256 of a string (returns ArrayBuffer)
 async function sha256(plain) {
   const encoder = new TextEncoder();
   const data = encoder.encode(plain);
   return await crypto.subtle.digest('SHA-256', data);
 }
 
+// Convert an ArrayBuffer to base64url string
 function base64urlencode(buffer) {
   return btoa(String.fromCharCode(...new Uint8Array(buffer)))
     .replace(/\+/g, '-')
     .replace(/\//g, '_')
     .replace(/=+$/, '');
 }
+/*****************************************************/
 
+
+/******************************************************
+ *  LOGIN FLOW – STEP 1
+ *  startLogin():
+ *    - Called when user clicks "Log in with Spotify"
+ *    - Creates code_verifier + code_challenge
+ *    - Redirects browser to Spotify /authorize
+ ******************************************************/
 // --- Step 1: redirect the user to Spotify login with PKCE parameters ---
 async function startLogin() {
   const codeVerifier = generateRandomString(128);
@@ -57,13 +74,25 @@ async function startLogin() {
   // Send user to Spotify's authorize page
   window.location.href = url.toString();
 }
+/*****************************************************/
 
+
+/******************************************************
+ *  LOGIN FLOW – STEP 2
+ *  handleRedirectCallback():
+ *    - Called when the page loads
+ *    - If Spotify redirected back with ?code=...
+ *      we exchange that code for an access token
+ *
+ *  Call: POST https://accounts.spotify.com/api/token
+ ******************************************************/
 // --- Step 2: when Spotify redirects back with ?code=..., exchange for tokens ---
 async function handleRedirectCallback() {
   const params = new URLSearchParams(window.location.search);
   const code = params.get('code');
   const error = params.get('error');
 
+//If Spotify sent an error (?error=access_denied, etc.)
   if (error) {
     output.textContent = `Error from Spotify: ${error}`;
     return;
@@ -71,12 +100,14 @@ async function handleRedirectCallback() {
 
   if (!code) return; // normal load, no redirect in progress
 
+//Retrieve the code_verifier we generated before redirect
   const codeVerifier = localStorage.getItem('spotify_code_verifier');
   if (!codeVerifier) {
     output.textContent = 'Missing code_verifier. Try logging in again.';
     return;
   }
 
+//Prepare the POST body for /api/token
   const body = new URLSearchParams({
     client_id: clientId,
     grant_type: 'authorization_code',
@@ -85,6 +116,8 @@ async function handleRedirectCallback() {
     code_verifier: codeVerifier
   });
 
+// ACTUAL TOKEN REQUEST:
+// POST https://accounts.spotify.com/api/token
   const response = await fetch(tokenEndpoint, {
     method: 'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -100,16 +133,22 @@ async function handleRedirectCallback() {
   const data = await response.json();
   accessToken = data.access_token;
 
-  // (Optional) store access token so you don’t lose it on refresh
+  //Store token so you don't have to log in every refresh
   localStorage.setItem('spotify_access_token', accessToken);
 
-  // Clean up URL (remove ?code=...)
+  // Clean the ?code= from the URL bar
   window.history.replaceState({}, document.title, redirectUri);
 
   updateUI();
   output.textContent = 'Logged in! Click "Get My Profile".';
 }
+/*****************************************************/
 
+
+/******************************************************
+ *  RESTORING TOKEN (optional convenience)
+ *  - If we previously logged in, reload token from storage
+ ******************************************************/
 // --- Load token from storage if we already logged in earlier ---
 function restoreToken() {
   const stored = localStorage.getItem('spotify_access_token');
@@ -125,8 +164,18 @@ function logout() {
   output.textContent = '(Not logged in)';
   updateUI();
 }
+/*****************************************************/
 
-// --- Example API call: GET /v1/me ---
+
+/******************************************************
+ *  fetchMyProfile():
+ *    - Called when user clicks "Get My Profile"
+ *    - Uses:
+ *      GET https://api.spotify.com/v1/me
+ *      with Authorization: Bearer <access_token>
+ ******************************************************/
+//Actual Web API call:
+//GET https://api.spotify.com/v1/me
 async function fetchMyProfile() {
   if (!accessToken) {
     output.textContent = 'Not logged in.';
@@ -147,16 +196,27 @@ async function fetchMyProfile() {
   const json = await res.json();
   output.textContent = JSON.stringify(json, null, 2);
 }
+/*****************************************************/
 
-// --- Enable/disable buttons based on login state ---
+
+/******************************************************
+ *  UI HELPERS (updating buttons and output)
+ ******************************************************/
 function updateUI() {
   const loggedIn = !!accessToken;
   loginBtn.disabled   = loggedIn;
   logoutBtn.disabled  = !loggedIn;
   profileBtn.disabled = !loggedIn;
 }
+/*****************************************************/
 
-// --- Wire up events + initial load ---
+
+/******************************************************
+ *  APP INIT
+ *  - Wires up button click handlers
+ *  - Restores token (if any)
+ *  - Handles redirect back from Spotify
+ ******************************************************/
 loginBtn.addEventListener('click', startLogin);
 logoutBtn.addEventListener('click', logout);
 profileBtn.addEventListener('click', fetchMyProfile);
@@ -164,3 +224,4 @@ profileBtn.addEventListener('click', fetchMyProfile);
 restoreToken();
 handleRedirectCallback();
 updateUI();
+/*****************************************************/
