@@ -172,7 +172,6 @@ function logout() {
   accessToken = null;
   localStorage.removeItem('spotify_access_token');
   output.textContent = '(Not logged in)';
-  searchAreas.classList.add('is-hidden');
   updateUI();
 }
 /*****************************************************/
