@@ -23,7 +23,6 @@ const resultsStatus   = document.getElementById('results-status');
 //Track search elements
 const trackForm       = document.getElementById('track-search-form');
 const trackQueryInput = document.getElementById('track-query');
-const resultsOutput   = document.getElementById('results-output');
 
 // Album search elements
 const albumForm       = document.getElementById('album-search-form');
@@ -236,28 +235,32 @@ function setResults(type, items) {
 
 function renderResults() {
   if (!currentResults.items || currentResults.items.length === 0) {
-    resultsOutput.textContent = 'No results found.';
+    if (resultsStatus) {
+      resultsStatus.textContent = 'No results found.';
+    }
     resultsSection.classList.remove('is-hidden');
 
     // Clear any old tiles if there are no results
     if (resultsContainer) {
-    resultsContainer.innerHTML = '';
+      resultsContainer.innerHTML = '';
     }
     return;
   }
 
-  const lines = currentResults.items.map((item, idx) => {
-  const prefix = `${idx + 1}. `;
-  const base   = `${item.title} — ${item.subtitle}`;
-  return item.extra ? `${prefix}${base} (${item.extra})` : `${prefix}${base}`;
-  });
+  // Simple status line instead of the old text list
+  if (resultsStatus) {
+    const count = currentResults.items.length;
+    const typeLabel = currentResults.type ? `${currentResults.type}s` : 'items';
+    resultsStatus.textContent = `Found ${count} ${typeLabel}.`;
+  }
 
-  resultsOutput.textContent = lines.join('\n');
   resultsSection.classList.remove('is-hidden');
 
+  // Tiles handle the detailed display
   renderTiles();
   console.log('Current results:', currentResults);
 }
+
 
 function renderTiles() {
   if (!resultsContainer) return;
@@ -382,15 +385,18 @@ function normalizePlaylistItems(data) {
  ******************************************************/
 async function searchTracks(query) {
   if (!accessToken) {
-    resultsOutput.textContent = 'Please log in with Spotify first.';
+    if (resultsStatus) {
+      resultsStatus.textContent = 'Please log in with Spotify first.';
+    }
     resultsSection.classList.remove('is-hidden');
     return;
   }
-
   const encodedQuery = encodeURIComponent(query);
   const url = `https://api.spotify.com/v1/search?type=track&q=${encodedQuery}&limit=25`;
 
-  resultsOutput.textContent = 'Searching tracks...';
+  if (resultsStatus) {
+    resultsStatus.textContent = 'Searching tracks...';
+  }
   resultsSection.classList.remove('is-hidden');
 
   try {
@@ -399,7 +405,9 @@ async function searchTracks(query) {
     });
 
     if (!res.ok) {
-      resultsOutput.textContent = `Track search error: ${res.status} ${res.statusText}`;
+      if (resultsStatus) {
+        resultsStatus.textContent = `Track search error: ${res.status} ${res.statusText}`;
+      }
       return;
     }
 
@@ -407,9 +415,12 @@ async function searchTracks(query) {
     const items = normalizeTrackItems(data);
     setResults('track', items);
   } catch (err) {
-    resultsOutput.textContent = `Network error (tracks): ${err.message}`;
+    if (resultsStatus) {
+      resultsStatus.textContent = `Network error (tracks): ${err.message}`;
+    }
   }
 }
+
 /*****************************************************/
 
 
@@ -418,15 +429,18 @@ async function searchTracks(query) {
  ******************************************************/
 async function searchAlbums(query) {
   if (!accessToken) {
-    resultsOutput.textContent = 'Please log in with Spotify first.';
+    if (resultsStatus) {
+      resultsStatus.textContent = 'Please log in with Spotify first.';
+    }
     resultsSection.classList.remove('is-hidden');
     return;
   }
 
   const encodedQuery = encodeURIComponent(query);
   const url = `https://api.spotify.com/v1/search?type=album&q=${encodedQuery}&limit=25`;
-
-  resultsOutput.textContent = 'Searching albums...';
+  if (resultsStatus) {
+    resultsStatus.textContent = 'Searching albums...';
+  }
   resultsSection.classList.remove('is-hidden');
 
   try {
@@ -435,7 +449,9 @@ async function searchAlbums(query) {
     });
 
     if (!res.ok) {
-      resultsOutput.textContent = `Album search error: ${res.status} ${res.statusText}`;
+      if (resultsStatus) {
+        resultsStatus.textContent = `Album search error: ${res.status} ${res.statusText}`;
+      }
       return;
     }
 
@@ -443,9 +459,12 @@ async function searchAlbums(query) {
     const items = normalizeAlbumItems(data);
     setResults('album', items);
   } catch (err) {
-    resultsOutput.textContent = `Network error (albums): ${err.message}`;
+    if (resultsStatus) {
+      resultsStatus.textContent = `Network error (albums): ${err.message}`;
+    }
   }
 }
+
 /*****************************************************/
 
 
@@ -454,15 +473,18 @@ async function searchAlbums(query) {
  ******************************************************/
 async function searchPlaylists(query) {
   if (!accessToken) {
-    resultsOutput.textContent = 'Please log in with Spotify first.';
+    if (resultsStatus) {
+      resultsStatus.textContent = 'Please log in with Spotify first.';
+    }
     resultsSection.classList.remove('is-hidden');
     return;
   }
 
   const encodedQuery = encodeURIComponent(query);
   const url = `https://api.spotify.com/v1/search?type=playlist&q=${encodedQuery}&limit=25`;
-
-  resultsOutput.textContent = 'Searching playlists...';
+  if (resultsStatus) {
+    resultsStatus.textContent = 'Searching playlists...';
+  }
   resultsSection.classList.remove('is-hidden');
 
   try {
@@ -471,7 +493,9 @@ async function searchPlaylists(query) {
     });
 
     if (!res.ok) {
-      resultsOutput.textContent = `Playlist search error: ${res.status} ${res.statusText}`;
+      if (resultsStatus) {
+        resultsStatus.textContent = `Playlist search error: ${res.status} ${res.statusText}`;
+      }
       return;
     }
 
@@ -479,9 +503,12 @@ async function searchPlaylists(query) {
     const items = normalizePlaylistItems(data);
     setResults('playlist', items);
   } catch (err) {
-    resultsOutput.textContent = `Network error (playlists): ${err.message}`;
+    if (resultsStatus) {
+      resultsStatus.textContent = `Network error (playlists): ${err.message}`;
+    }
   }
 }
+
 /*****************************************************/
 
 
