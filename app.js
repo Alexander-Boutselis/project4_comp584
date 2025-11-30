@@ -1,3 +1,8 @@
+/* ===============================
+   COMP 584 - API Assignment
+   =============================== */
+
+
 /******************************************************
  *  CONFIGURATION SECTION
  *  - Set Spotify Client ID and Redirect URI
