@@ -47,6 +47,17 @@ let accessToken = null;
 
 /******************************************************
  *  POPMOTION ANIMATIONS
+ ******************************************************/
+console.log('Popmotion object:', window.popmotion);
+
+const { animate } = window.popmotion || {};
+if (!animate) {
+  console.error('Popmotion animate() not available – check script include.');
+}
+
+
+/******************************************************
+ *  POPMOTION ANIMATIONS
  *  (uses global popmotion from index.html script tag)
  ******************************************************/
 const { animate } = window.popmotion || {};
