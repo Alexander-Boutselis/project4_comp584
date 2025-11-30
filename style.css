@@ -200,15 +200,26 @@ button[disabled] {
   min-width: 0;                  /* lets ellipsis work correctly */
 }
 
-/* Title (1 line, truncated) */
-.result-title {
-  font-size: 0.95rem;
-  font-weight: 600;
-  margin: 0 0 0.2rem;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+.result-tile {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  background: #000;
+  border-radius: 0.75rem;
+  border: 1px solid #333;
+  text-align: left;
+
+  /* Popmotion */
+  position: relative;
+  transform-origin: center;
+  will-change: transform, box-shadow;
+
+  /* NEW */
+  box-sizing: border-box;
 }
+
 
 /* Subtitle (artist/owner + extra) */
 .result-subtitle {
@@ -233,7 +244,7 @@ button[disabled] {
   display: none;
 }
 
-/*================= Tablet & Mobile Layout (≤ 900px) =================*/
+//*================= Tablet & Mobile Layout (≤ 900px) =================*/
 @media (max-width: 900px) {
 
   .wrapper {
@@ -241,6 +252,7 @@ button[disabled] {
     padding: 1rem 0.75rem;
   }
 
+  /* Search cards: single column */
   .search-section {
     grid-template-columns: 1fr;
     width: 100%;
@@ -248,17 +260,25 @@ button[disabled] {
     gap: 0.75rem;
   }
 
+  /* Result card full-width, single column */
   .result-section {
     grid-template-columns: 1fr;
     width: 100%;
     padding: 0.5rem 0;
   }
 
-  .result-window {
+  .result-window,
+  .results-container,
+  .result-tile {
     width: 100%;
+    max-width: 100%;
+  }
+
+  .result-window {
     padding: 0.5rem 0.5rem;
   }
 
+  /* Slimmer tiles on smaller screens */
   .result-tile {
     padding: 0.5rem;
     gap: 0.5rem;
@@ -267,6 +287,27 @@ button[disabled] {
   .tile-image {
     width: 48px;
     height: 48px;
+  }
+}
+
+
+@media (max-width: 600px) {
+  .result-tile {
+    padding: 0.4rem;
+    gap: 0.4rem;
+  }
+
+  .tile-image {
+    width: 40px;
+    height: 40px;
+  }
+
+  .result-title {
+    font-size: 0.85rem;
+  }
+
+  .result-subtitle {
+    font-size: 0.75rem;
   }
 }
 
