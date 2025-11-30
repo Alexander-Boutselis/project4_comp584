@@ -217,6 +217,8 @@ button[disabled] {
   align-items: stretch;   /* each tile stretches full width of container */
   gap: 0.5rem;
   margin-top: 0.5rem;
+  width: 100%;
+  
 }
 
 /* Each tile: left-justified, clickable card in the existing dark theme */

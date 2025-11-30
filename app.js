@@ -312,9 +312,9 @@ function renderTiles() {
     tile.appendChild(imageDiv);
     tile.appendChild(textDiv);
 
-    // Click target (for now just log)
+    // Click target
     tile.addEventListener('click', () => {
-      console.log('Clicked item:', item);
+      startPlaybackForItem(item);
     });
 
     resultsContainer.appendChild(tile);
@@ -343,6 +343,102 @@ function getImageUrlForItem(item) {
   return FALLBACK_IMAGE_URL;
 }
 /*****************************************************/
+
+
+function buildSpotifyUrl(item) {
+  if (!item || !item.id) return null;
+
+  if (item.type === 'track') {
+    return `https://open.spotify.com/track/${item.id}`;
+  }
+  if (item.type === 'album') {
+    return `https://open.spotify.com/album/${item.id}`;
+  }
+  if (item.type === 'playlist') {
+    return `https://open.spotify.com/playlist/${item.id}`;
+  }
+
+  return null;
+}
+
+/******************************************************
+ * PLAYBACK FUNCTIONS
+ ******************************************************/
+async function startPlaybackForItem(item) {
+  if (!playerSection) return;
+
+  // Unhide the media player
+  playerSection.classList.remove('is-hidden');
+
+  // Reset message + audio
+  if (playerMessage) playerMessage.textContent = '';
+  if (playerAudio) {
+    playerAudio.pause();
+    playerAudio.removeAttribute('src');
+    playerAudio.load();
+  }
+
+  // Basic text info
+  const extraText = item.extra ? ` • ${item.extra}` : '';
+
+  if (playerTitle) {
+    playerTitle.textContent = item.title;
+  }
+  if (playerSubtitle) {
+    playerSubtitle.textContent = `${item.subtitle}${extraText}`;
+  }
+
+  // Cover art
+  if (playerCover) {
+    const imgUrl = getImageUrlForItem(item);
+    if (imgUrl) {
+      playerCover.style.backgroundImage = `url("${imgUrl}")`;
+    } else {
+      playerCover.style.backgroundImage = '';
+    }
+  }
+
+  // "Open in Spotify" link
+  if (playerOpenLink) {
+    const url = buildSpotifyUrl(item);
+    if (url) {
+      playerOpenLink.href = url;
+      playerOpenLink.classList.remove('is-hidden');
+    } else {
+      playerOpenLink.classList.add('is-hidden');
+    }
+  }
+
+  // ===== Playback logic (track previews only) =====
+  let previewUrl = null;
+
+  if (item.type === 'track') {
+    // Web API only exposes a 30s preview
+    previewUrl = item.raw?.preview_url || null;
+  } else {
+    // For albums/playlists we’re just showing info + link for now
+    previewUrl = null;
+  }
+
+  if (previewUrl && playerAudio) {
+    playerAudio.src = previewUrl;
+    try {
+      await playerAudio.play(); // may be blocked; then user clicks Play
+    } catch (err) {
+      console.warn('Autoplay blocked, user must click play:', err);
+      if (playerMessage) {
+        playerMessage.textContent = 'Press play to start the preview.';
+      }
+    }
+  } else {
+    if (playerMessage) {
+      playerMessage.textContent =
+        'No preview available. Use "Open in Spotify" to listen.';
+    }
+  }
+}
+/*****************************************************/
+
 
 
 /******************************************************
