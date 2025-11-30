@@ -136,5 +136,24 @@ button[disabled] {
   display: none;
 }
 
+/*================= Tablet Layout (≈ up to 900px) =================*/
 
+@media (max-width: 900px) {
+
+  /* Let rows breathe edge-to-edge a bit more on tablet */
+  .wrapper {
+    padding: 0.75rem;
+  }
+
+  main {
+    max-width: 100%;
+    gap: 0.75rem;
+  }
+
+  /* Info row: stack into a single column on tablet */
+  .search-section {
+    grid-template-columns: 1fr;
+    width: 100%;
+  }
+}
 /*================= x =================*/
