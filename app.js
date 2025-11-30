@@ -268,10 +268,15 @@ function renderTiles() {
   // Clear old tiles
   resultsContainer.innerHTML = '';
 
-  currentResults.items.forEach((item) => {
+  currentResults.items.forEach((item, index) => {
     // Outer tile
     const tile = document.createElement('article');
     tile.className = 'result-tile';
+
+    // Left-side index number
+    const indexSpan = document.createElement('span');
+    indexSpan.className = 'tile-index';
+    indexSpan.textContent = `${index + 1}.`;
 
     // Image box
     const imageDiv = document.createElement('div');
@@ -303,10 +308,12 @@ function renderTiles() {
     textDiv.appendChild(titleEl);
     textDiv.appendChild(subtitleEl);
 
+    // Order: number | image | text
+    tile.appendChild(indexSpan);
     tile.appendChild(imageDiv);
     tile.appendChild(textDiv);
 
-    // For now, clicking a tile just logs it
+    // Click target
     tile.addEventListener('click', () => {
       console.log('Clicked item:', item);
     });
@@ -314,6 +321,7 @@ function renderTiles() {
     resultsContainer.appendChild(tile);
   });
 }
+
 
 
 // Helper to pull the best cover image depending on item type
