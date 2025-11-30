@@ -14,10 +14,14 @@ const logoutBtn  = document.getElementById('logout-btn');
 const profileBtn = document.getElementById('profile-btn');
 const output     = document.getElementById('output');
 
-// Debug toggle for results section
+//Debug toggle for results section
 const toggleResultsBtn = document.getElementById('toggle-results-btn');
 const resultsSection   = document.querySelector('.result-section'); // NOTE: singular!
 
+//track search elements
+const trackForm       = document.getElementById('track-search-form');
+const trackQueryInput = document.getElementById('track-query');
+const resultsOutput   = document.getElementById('results-output');
 
 let accessToken = null;
 /*****************************************************/
@@ -205,6 +209,58 @@ async function fetchMyProfile() {
 
 
 /******************************************************
+ *  TRACK SEARCH HELPERS
+ ******************************************************/
+function renderTrackResults(data) {
+  if (!data.tracks || !data.tracks.items || data.tracks.items.length === 0) {
+    resultsOutput.textContent = 'No tracks found for that search.';
+    return;
+  }
+
+  // Build a simple text list: Track – Artist(s) (Album)
+  const lines = data.tracks.items.map(track => {
+    const artists = track.artists.map(a => a.name).join(', ');
+    return `${track.name} — ${artists} (${track.album.name})`;
+  });
+
+  resultsOutput.textContent = lines.join('\n');
+}
+
+async function searchTracks(query) {
+  if (!accessToken) {
+    resultsOutput.textContent = 'Please log in with Spotify first.';
+    resultsSection.classList.remove('is-hidden');
+    return;
+  }
+
+  const encodedQuery = encodeURIComponent(query);
+  const url = `https://api.spotify.com/v1/search?type=track&q=${encodedQuery}&limit=10`;
+
+  resultsOutput.textContent = 'Searching tracks...';
+  resultsSection.classList.remove('is-hidden');
+
+  try {
+    const res = await fetch(url, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`
+      }
+    });
+
+    if (!res.ok) {
+      resultsOutput.textContent = `Search error: ${res.status} ${res.statusText}`;
+      return;
+    }
+
+    const data = await res.json();
+    renderTrackResults(data);
+  } catch (err) {
+    resultsOutput.textContent = `Network error: ${err.message}`;
+  }
+}
+/*****************************************************/
+
+
+/******************************************************
  *  UI HELPERS (updating buttons and output)
  ******************************************************/
 function updateUI() {
@@ -216,6 +272,10 @@ function updateUI() {
 /*****************************************************/
 
 
+
+
+
+
 /******************************************************
  *  APP INIT
  *  - Wires up button click handlers
@@ -225,13 +285,22 @@ function updateUI() {
 loginBtn.addEventListener('click', startLogin);
 logoutBtn.addEventListener('click', logout);
 profileBtn.addEventListener('click', fetchMyProfile);
-resultsSection.classList.remove('is-hidden');
 
 
 // Set up debug toggle once
 if (toggleResultsBtn && resultsSection) {
   toggleResultsBtn.addEventListener('click', () => {
     resultsSection.classList.toggle('is-hidden');
+  });
+}
+
+//Track search submit handler
+if (trackForm) {
+  trackForm.addEventListener('submit', (event) => {
+    event.preventDefault(); // stop page reload
+    const query = trackQueryInput.value.trim();
+    if (!query) return;
+    searchTracks(query);
   });
 }
 
