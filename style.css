@@ -117,12 +117,14 @@ button[disabled] {
 }
 
 .result-window{
-  width: 90%;
+  width: 100%;
   min-height: 10rem;
   background: #111; 
   justify-items: center;
-  padding-top: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  box-sizing: border-box;
 }
+
 
 
 /*Status / debug text at top of results */
@@ -234,29 +236,11 @@ button[disabled] {
 /*================= Tablet & Mobile Layout (≤ 900px) =================*/
 @media (max-width: 900px) {
 
-  /* Let content go edge-to-edge a bit more */
   .wrapper {
     max-width: 100%;
     padding: 1rem 0.75rem;
   }
 
-  /* Stack header/buttons/content vertically */
-  header {
-    text-align: left;
-  }
-
-  .controls {
-    flex-direction: column;
-    align-items: stretch;
-    justify-content: center;
-    gap: 0.5rem;
-  }
-
-  .controls button {
-    width: 100%;              /* full-width buttons */
-  }
-
-  /* Search area: single column */
   .search-section {
     grid-template-columns: 1fr;
     width: 100%;
@@ -264,30 +248,15 @@ button[disabled] {
     gap: 0.75rem;
   }
 
-  .search-section section {
-    padding: 0.75rem;
-  }
-
-  /* Results area: also full-width, stacked */
   .result-section {
     grid-template-columns: 1fr;
     width: 100%;
     padding: 0.5rem 0;
   }
 
-  .result-window{
-  width: 100%;
-  min-height: 10rem;
-  background: #111; 
-  justify-items: center;
-  padding: 0.5rem 0.75rem;
-  box-sizing: border-box;
-}
-
-
-  /* Tiles: still vertical, just slightly tighter for small screens */
-  .results-container {
+  .result-window {
     width: 100%;
+    padding: 0.5rem 0.5rem;
   }
 
   .result-tile {
@@ -300,5 +269,6 @@ button[disabled] {
     height: 48px;
   }
 }
+
 
 /*================= x =================*/
