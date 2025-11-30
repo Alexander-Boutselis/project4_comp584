@@ -44,8 +44,6 @@ let currentResults = {
 };
 
 let accessToken = null;
-/*****************************************************/
-
 
 /******************************************************
  *  POPMOTION ANIMATIONS
@@ -124,7 +122,6 @@ function attachTileHoverAnimation(tile) {
 
 /******************************************************
  *  PKCE HELPER FUNCTIONS
- *  - Generate code_verifier & code_challenge for PKCE
  ******************************************************/
 function generateRandomString(length) {
   const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~';
@@ -154,10 +151,6 @@ function base64urlencode(buffer) {
 
 /******************************************************
  *  LOGIN FLOW – STEP 1
- *  startLogin():
- *    - Called when user clicks "Log in with Spotify"
- *    - Creates code_verifier + code_challenge
- *    - Redirects browser to Spotify /authorize
  ******************************************************/
 async function startLogin() {
   const codeVerifier = generateRandomString(128);
@@ -181,10 +174,6 @@ async function startLogin() {
 
 /******************************************************
  *  LOGIN FLOW – STEP 2
- *  handleRedirectCallback():
- *    - Called when the page loads
- *    - If Spotify redirected back with ?code=...
- *      we exchange that code for an access token
  ******************************************************/
 async function handleRedirectCallback() {
   const params = new URLSearchParams(window.location.search);
@@ -263,10 +252,13 @@ function logout() {
   currentResults.type = null;
   currentResults.items = [];
 
-  // Clear the “console” text
-  if (typeof resultsOutput !== 'undefined' && resultsOutput) {
-    resultsOutput.textContent = '(Songs/Albums/Playlists will appear here)';
+  // Reset results text
+  if (resultsStatus) {
+    resultsStatus.textContent = '(Songs/Albums/Playlists will appear here)';
   }
+
+  // Stop any loading animation
+  stopLoadingAnimation();
 
   // Hide the result area again
   if (resultsSection) {
@@ -315,6 +307,9 @@ function setResults(type, items) {
 }
 
 function renderResults() {
+  // whenever we render, make sure loading stops
+  stopLoadingAnimation();
+
   if (!currentResults.items || currentResults.items.length === 0) {
     if (resultsStatus) {
       resultsStatus.textContent = 'No results found.';
@@ -393,19 +388,18 @@ function renderTiles() {
     tile.appendChild(imageDiv);
     tile.appendChild(textDiv);
 
-    // 🔴 NEW: click opens Spotify
+    // Click opens Spotify
     tile.addEventListener('click', () => {
       const url = buildSpotifyUrl(item);
       if (url) {
-        // Redirect in the same tab:
         window.location.href = url;
-
-        // If you’d rather open a new tab, use this instead:
-        // window.open(url, '_blank', 'noopener');
       } else {
         console.warn('No Spotify URL available for item:', item);
       }
     });
+
+    // 🔹 Popmotion hover animation hook
+    attachTileHoverAnimation(tile);
 
     resultsContainer.appendChild(tile);
   });
@@ -454,7 +448,6 @@ function buildSpotifyUrl(item) {
   return null;
 }
 /*****************************************************/
-
 
 
 /******************************************************
@@ -533,6 +526,7 @@ async function searchTracks(query) {
     resultsStatus.textContent = 'Searching tracks...';
   }
   resultsSection.classList.remove('is-hidden');
+  startLoadingAnimation();
 
   try {
     const res = await fetch(url, {
@@ -540,6 +534,7 @@ async function searchTracks(query) {
     });
 
     if (!res.ok) {
+      stopLoadingAnimation();
       if (resultsStatus) {
         resultsStatus.textContent = `Track search error: ${res.status} ${res.statusText}`;
       }
@@ -550,6 +545,7 @@ async function searchTracks(query) {
     const items = normalizeTrackItems(data);
     setResults('track', items);
   } catch (err) {
+    stopLoadingAnimation();
     if (resultsStatus) {
       resultsStatus.textContent = `Network error (tracks): ${err.message}`;
     }
@@ -577,6 +573,7 @@ async function searchAlbums(query) {
     resultsStatus.textContent = 'Searching albums...';
   }
   resultsSection.classList.remove('is-hidden');
+  startLoadingAnimation();
 
   try {
     const res = await fetch(url, {
@@ -584,6 +581,7 @@ async function searchAlbums(query) {
     });
 
     if (!res.ok) {
+      stopLoadingAnimation();
       if (resultsStatus) {
         resultsStatus.textContent = `Album search error: ${res.status} ${res.statusText}`;
       }
@@ -594,6 +592,7 @@ async function searchAlbums(query) {
     const items = normalizeAlbumItems(data);
     setResults('album', items);
   } catch (err) {
+    stopLoadingAnimation();
     if (resultsStatus) {
       resultsStatus.textContent = `Network error (albums): ${err.message}`;
     }
@@ -621,6 +620,7 @@ async function searchPlaylists(query) {
     resultsStatus.textContent = 'Searching playlists...';
   }
   resultsSection.classList.remove('is-hidden');
+  startLoadingAnimation();
 
   try {
     const res = await fetch(url, {
@@ -628,6 +628,7 @@ async function searchPlaylists(query) {
     });
 
     if (!res.ok) {
+      stopLoadingAnimation();
       if (resultsStatus) {
         resultsStatus.textContent = `Playlist search error: ${res.status} ${res.statusText}`;
       }
@@ -638,6 +639,7 @@ async function searchPlaylists(query) {
     const items = normalizePlaylistItems(data);
     setResults('playlist', items);
   } catch (err) {
+    stopLoadingAnimation();
     if (resultsStatus) {
       resultsStatus.textContent = `Network error (playlists): ${err.message}`;
     }
