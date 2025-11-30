@@ -178,13 +178,30 @@ function restoreToken() {
   }
 }
 
-// Simple logout
 function logout() {
+  // Clear auth
   accessToken = null;
   localStorage.removeItem('spotify_access_token');
   output.textContent = '(Not logged in)';
+
+  // Clear any stored results
+  currentResults.type = null;
+  currentResults.items = [];
+
+  // Clear the “console” text
+  if (typeof resultsOutput !== 'undefined' && resultsOutput) {
+    resultsOutput.textContent = '(Songs/Albums/Playlists will appear here)';
+  }
+
+  // Hide the result area again
+  if (resultsSection) {
+    resultsSection.classList.add('is-hidden');
+  }
+
+  // Update buttons, etc.
   updateUI();
 }
+
 /*****************************************************/
 
 
