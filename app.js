@@ -207,6 +207,15 @@ function updateUI() {
   loginBtn.disabled   = loggedIn;
   logoutBtn.disabled  = !loggedIn;
   profileBtn.disabled = !loggedIn;
+  // Debug toggle for results section
+  const toggleResultsBtn = document.getElementById('toggle-results-btn');
+  const resultsSection   = document.querySelector('.results-section');
+
+  if (toggleResultsBtn && resultsSection) {
+    toggleResultsBtn.addEventListener('click', () => {
+      resultsSection.classList.toggle('is-hidden');
+    });
+  }
 }
 /*****************************************************/
 

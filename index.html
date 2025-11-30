@@ -1,33 +1,107 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <title>Spotify PKCE Demo</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="stylesheet" href="style.css" />
-</head>
-<body>
-  <div class="wrapper">
-    <header>
-      <h1>Spotify API Demo</h1>
-      <p>Login with Spotify, then fetch your profile.</p>
-    </header>
+  <head>
+    <meta charset="UTF-8" />
+      <title>Spotify PKCE Demo</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1>Spotify API Demo</h1>
+        <p>Login with Spotify, then fetch your profile.</p>
+      </header>
 
-    <main>
-      <div class="controls">
-        <button id="login-btn">Log in with Spotify</button>
-        <button id="logout-btn" disabled>Log out</button>
-        <button id="profile-btn" disabled>Get My Profile</button>
-      </div>
+      <main>
+        <!-- Auth controls -->
+        <div class="controls">
+          <button id="login-btn">Log in with Spotify</button>
+          <button id="logout-btn" disabled>Log out</button>
+          <button id="profile-btn" disabled>Get My Profile</button>
+        </div>
 
-      <section class="output-tile">
-        <h2>Output</h2>
-        <pre id="output">(Not logged in)</pre>
-      </section>
-    </main>
-  </div>
+        <!-- Status panel -->
+        <section class="output-tile">
+          <h2>Status</h2>
+          <pre id="output">(Not logged in)</pre>
+        </section>
+      </main>
 
-  <!-- Our JS (PKCE + API calls) -->
-  <script type="module" src="app.js"></script>
-</body>
+
+      <main class="debug">
+        <section>
+          <!-- Debug toggle button -->
+          <button type="button" id="toggle-results-btn">
+            Toggle Results (debug)
+          </button>
+        </section>
+      </main>
+
+
+
+      <!-- Search Section Area -->
+      <main class="search-section">
+          <section class="track-search">
+            <h2>Search for a Track</h2>
+  
+            <form id="track-search-form">
+              <input
+              type="text"
+              id="track-query"
+              placeholder="Search for a song..."
+              required
+              />
+              <button type="submit">Search</button>
+            </form>
+  
+            <div id="search-results"></div>
+          </section>
+         <section class="album-search">
+          <h2>Search for an Album</h2>
+
+          <form id="album-search-form">
+            <input
+            type="text"
+            id="album-query"
+            placeholder="Search for an album..."
+            required
+            />
+            <button type="submit">Search</button>
+          </form>
+
+          <div id="search-results"></div>
+        </section>
+        <section class="playlist-search">
+          <h2>Search for a Playlist</h2>
+
+          <form id="playlist-search-form">
+            <input
+            type="text"
+            id="playlist-query"
+            placeholder="Search for a playlist..."
+            required
+            />
+            <button type="submit">Search</button>
+          </form>
+
+          <div id="search-results"></div>
+        </section>
+      </main>
+
+      <!-- Search Result Area -->
+      <main class="result-section is-hidden">
+          <section>
+            <h2>Results</h2>
+            <div class="result-window">
+            <pre id="result">(Songs/Albums/Playlists will appear here)</pre>
+            <div id="search-results"></div>
+            </div>
+          </section>
+      </main>
+    </div>
+
+    <!-- Our JS (PKCE + API calls) -->
+    <script type="module" src="app.js"></script>
+  </body>
 </html>
