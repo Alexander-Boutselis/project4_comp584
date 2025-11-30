@@ -93,8 +93,8 @@ button[disabled] {
   background: #000;
   border-radius: 1rem;
   border: none;
-  justify-items: center;
   align-content: flex-start;
+  justify-items: center;
 }
 
 /* ================= Result Area ================= */
