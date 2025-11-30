@@ -47,40 +47,40 @@ let accessToken = null;
 /*****************************************************/
 
 
+
 /******************************************************
  *  POPMOTION ANIMATIONS
  *  (uses global popmotion from index.html script tag)
  ******************************************************/
-console.log('Popmotion object:', window.popmotion);
+const pop = window.popmotion;
+console.log('Popmotion object:', pop);
 
-const { animate } = window.popmotion || {};
-if (!animate) {
-  console.error('Popmotion animate() not available – check script include.');
+const tween = pop && pop.tween;
+if (!tween) {
+  console.error('Popmotion tween() not available – check script include.');
 }
 
 let loadingAnimation = null;
 
 // Pulse the resultsStatus while a search is running
 function startLoadingAnimation() {
-  if (!resultsStatus || !animate) return;
+  if (!resultsStatus || !tween) return;
 
-  // if a previous animation exists, stop it first
+  // stop any previous animation
   stopLoadingAnimation();
 
   resultsStatus.classList.add('loading');
 
-  loadingAnimation = animate({
+  loadingAnimation = tween({
     from: 0,
     to: 1,
     duration: 600,
-    repeat: Infinity,
-    yoyo: true,
-    onUpdate: (v) => {
-      const scale   = 1 + v * 0.05;        // up to 5% larger
-      const opacity = 0.7 + v * 0.3;       // 0.7 → 1.0
-      resultsStatus.style.transform = `scale(${scale})`;
-      resultsStatus.style.opacity   = String(opacity);
-    }
+    flip: Infinity      // ping-pong 0 → 1 → 0 → 1...
+  }).start((v) => {
+    const scale   = 1 + v * 0.05;       // up to +5%
+    const opacity = 0.7 + v * 0.3;      // 0.7 → 1.0
+    resultsStatus.style.transform = `scale(${scale})`;
+    resultsStatus.style.opacity   = String(opacity);
   });
 }
 
@@ -99,31 +99,35 @@ function stopLoadingAnimation() {
 
 // Attach a hover scale animation to each result tile
 function attachTileHoverAnimation(tile) {
-  if (!animate || !tile) return;
+  if (!tween || !tile) return;
+
+  let hoverPlayback = null;
 
   tile.addEventListener('mouseenter', () => {
     console.log('Popmotion hover: mouseenter on tile');
-    animate({
+    if (hoverPlayback) hoverPlayback.stop();
+
+    hoverPlayback = tween({
       from: 0,
       to: 1,
-      duration: 150,
-      onUpdate: (v) => {
-        const scale = 1 + v * 0.03; // up to +3%
-        tile.style.transform = `scale(${scale})`;
-      }
+      duration: 150
+    }).start((v) => {
+      const scale = 1 + v * 0.03; // up to +3%
+      tile.style.transform = `scale(${scale})`;
     });
   });
 
   tile.addEventListener('mouseleave', () => {
     console.log('Popmotion hover: mouseleave on tile');
-    animate({
+    if (hoverPlayback) hoverPlayback.stop();
+
+    hoverPlayback = tween({
       from: 1,
       to: 0,
-      duration: 150,
-      onUpdate: (v) => {
-        const scale = 1 + v * 0.03;
-        tile.style.transform = `scale(${scale})`;
-      }
+      duration: 150
+    }).start((v) => {
+      const scale = 1 + v * 0.03;
+      tile.style.transform = `scale(${scale})`;
     });
   });
 }
