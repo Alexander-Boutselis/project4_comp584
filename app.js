@@ -18,8 +18,8 @@ const toggleResultsBtn = document.getElementById('toggle-results-btn');
 
 //Result Area
 const resultsContainer = document.getElementById('results-container');
+const resultsSection   = document.querySelector('.result-section'); // NOTE: singular!
 const resultsStatus   = document.getElementById('results-status');
-
 //Track search elements
 const trackForm       = document.getElementById('track-search-form');
 const trackQueryInput = document.getElementById('track-query');
@@ -236,33 +236,28 @@ function setResults(type, items) {
 
 function renderResults() {
   if (!currentResults.items || currentResults.items.length === 0) {
-    if (resultsStatus) {
-      resultsStatus.textContent = 'No results found.';
-    }
-    resultsStatus.classList.remove('is-hidden');
-
+    resultsOutput.textContent = 'No results found.';
+    resultsSection.classList.remove('is-hidden');
 
     // Clear any old tiles if there are no results
     if (resultsContainer) {
-      resultsContainer.innerHTML = '';
+    resultsContainer.innerHTML = '';
     }
     return;
   }
 
-  // Simple status line instead of a full text list
-  if (resultsStatus) {
-    const count = currentResults.items.length;
-    const typeLabel = currentResults.type ? `${currentResults.type}s` : 'items';
-    resultsStatus.textContent = `Found ${count} ${typeLabel}.`;
-  }
+  const lines = currentResults.items.map((item, idx) => {
+  const prefix = `${idx + 1}. `;
+  const base   = `${item.title} — ${item.subtitle}`;
+  return item.extra ? `${prefix}${base} (${item.extra})` : `${prefix}${base}`;
+  });
 
-  resultsStatus.classList.remove('is-hidden');
+  resultsOutput.textContent = lines.join('\n');
+  resultsSection.classList.remove('is-hidden');
 
-  // Tiles handle the detailed display
   renderTiles();
   console.log('Current results:', currentResults);
 }
-
 
 function renderTiles() {
   if (!resultsContainer) return;
@@ -387,16 +382,16 @@ function normalizePlaylistItems(data) {
  ******************************************************/
 async function searchTracks(query) {
   if (!accessToken) {
-    resultsStatus.textContent = 'Please log in with Spotify first.';
-    resultsStatus.classList.remove('is-hidden');
+    resultsOutput.textContent = 'Please log in with Spotify first.';
+    resultsSection.classList.remove('is-hidden');
     return;
   }
 
   const encodedQuery = encodeURIComponent(query);
   const url = `https://api.spotify.com/v1/search?type=track&q=${encodedQuery}&limit=25`;
 
-  resultsStatus.textContent = 'Searching tracks...';
-  resultsStatus.classList.remove('is-hidden');
+  resultsOutput.textContent = 'Searching tracks...';
+  resultsSection.classList.remove('is-hidden');
 
   try {
     const res = await fetch(url, {
@@ -404,7 +399,7 @@ async function searchTracks(query) {
     });
 
     if (!res.ok) {
-      resultsStatus.textContent = `Track search error: ${res.status} ${res.statusText}`;
+      resultsOutput.textContent = `Track search error: ${res.status} ${res.statusText}`;
       return;
     }
 
@@ -412,7 +407,7 @@ async function searchTracks(query) {
     const items = normalizeTrackItems(data);
     setResults('track', items);
   } catch (err) {
-    resultsStatus.textContent = `Network error (tracks): ${err.message}`;
+    resultsOutput.textContent = `Network error (tracks): ${err.message}`;
   }
 }
 /*****************************************************/
@@ -423,16 +418,16 @@ async function searchTracks(query) {
  ******************************************************/
 async function searchAlbums(query) {
   if (!accessToken) {
-    resultsStatus.textContent = 'Please log in with Spotify first.';
-    resultsStatus.classList.remove('is-hidden');
+    resultsOutput.textContent = 'Please log in with Spotify first.';
+    resultsSection.classList.remove('is-hidden');
     return;
   }
 
   const encodedQuery = encodeURIComponent(query);
   const url = `https://api.spotify.com/v1/search?type=album&q=${encodedQuery}&limit=25`;
 
-  resultsStatus.textContent = 'Searching albums...';
-  resultsStatus.classList.remove('is-hidden');
+  resultsOutput.textContent = 'Searching albums...';
+  resultsSection.classList.remove('is-hidden');
 
   try {
     const res = await fetch(url, {
@@ -440,7 +435,7 @@ async function searchAlbums(query) {
     });
 
     if (!res.ok) {
-      resultsStatus.textContent = `Album search error: ${res.status} ${res.statusText}`;
+      resultsOutput.textContent = `Album search error: ${res.status} ${res.statusText}`;
       return;
     }
 
@@ -448,7 +443,7 @@ async function searchAlbums(query) {
     const items = normalizeAlbumItems(data);
     setResults('album', items);
   } catch (err) {
-    resultsStatus.textContent = `Network error (albums): ${err.message}`;
+    resultsOutput.textContent = `Network error (albums): ${err.message}`;
   }
 }
 /*****************************************************/
@@ -459,16 +454,16 @@ async function searchAlbums(query) {
  ******************************************************/
 async function searchPlaylists(query) {
   if (!accessToken) {
-    resultsStatus.textContent = 'Please log in with Spotify first.';
-    resultsStatus.classList.remove('is-hidden');
+    resultsOutput.textContent = 'Please log in with Spotify first.';
+    resultsSection.classList.remove('is-hidden');
     return;
   }
 
   const encodedQuery = encodeURIComponent(query);
   const url = `https://api.spotify.com/v1/search?type=playlist&q=${encodedQuery}&limit=25`;
 
-  resultsStatus.textContent = 'Searching playlists...';
-  resultsStatus.classList.remove('is-hidden');
+  resultsOutput.textContent = 'Searching playlists...';
+  resultsSection.classList.remove('is-hidden');
 
   try {
     const res = await fetch(url, {
@@ -476,7 +471,7 @@ async function searchPlaylists(query) {
     });
 
     if (!res.ok) {
-      resultsStatus.textContent = `Playlist search error: ${res.status} ${res.statusText}`;
+      resultsOutput.textContent = `Playlist search error: ${res.status} ${res.statusText}`;
       return;
     }
 
@@ -484,7 +479,7 @@ async function searchPlaylists(query) {
     const items = normalizePlaylistItems(data);
     setResults('playlist', items);
   } catch (err) {
-    resultsStatus.textContent = `Network error (playlists): ${err.message}`;
+    resultsOutput.textContent = `Network error (playlists): ${err.message}`;
   }
 }
 /*****************************************************/
@@ -515,9 +510,9 @@ logoutBtn.addEventListener('click', logout);
 
 
 // Set up debug toggle once
-if (toggleResultsBtn && resultsStatus) {
+if (toggleResultsBtn && resultsSection) {
   toggleResultsBtn.addEventListener('click', () => {
-    resultsStatus.classList.toggle('is-hidden');
+    resultsSection.classList.toggle('is-hidden');
   });
 }
 
