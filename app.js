@@ -44,9 +44,12 @@ let currentResults = {
 };
 
 let accessToken = null;
+/*****************************************************/
+
 
 /******************************************************
  *  POPMOTION ANIMATIONS
+ *  (uses global popmotion from index.html script tag)
  ******************************************************/
 console.log('Popmotion object:', window.popmotion);
 
@@ -55,12 +58,6 @@ if (!animate) {
   console.error('Popmotion animate() not available – check script include.');
 }
 
-
-/******************************************************
- *  POPMOTION ANIMATIONS
- *  (uses global popmotion from index.html script tag)
- ******************************************************/
-const { animate } = window.popmotion || {};
 let loadingAnimation = null;
 
 // Pulse the resultsStatus while a search is running
@@ -102,10 +99,10 @@ function stopLoadingAnimation() {
 
 // Attach a hover scale animation to each result tile
 function attachTileHoverAnimation(tile) {
-  console.log('Popmotion hover: mouseenter on tile');
   if (!animate || !tile) return;
 
   tile.addEventListener('mouseenter', () => {
+    console.log('Popmotion hover: mouseenter on tile');
     animate({
       from: 0,
       to: 1,
@@ -131,6 +128,7 @@ function attachTileHoverAnimation(tile) {
   });
 }
 /*****************************************************/
+
 
 
 /******************************************************
