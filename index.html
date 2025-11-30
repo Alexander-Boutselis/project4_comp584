@@ -73,6 +73,34 @@
         </section>
       </main>
 
+      <!-- Player Area -->
+      <main id="player-section" class="player-section is-hidden">
+        <section class="player-card">
+          <h2>Now Playing</h2>
+
+          <div class="player-meta">
+            <div class="player-cover"></div>
+            <div class="player-text">
+              <h3 id="player-title" class="player-title">Nothing playing</h3>
+              <p id="player-subtitle" class="player-subtitle"></p>
+              <a
+                id="player-open-link"
+                href="#"
+                target="_blank"
+                rel="noopener"
+                class="player-link is-hidden"
+              >
+                Open in Spotify
+              </a>
+            </div>
+          </div>
+
+          <audio id="player-audio" class="player-audio" controls></audio>
+          <p id="player-message" class="player-message"></p>
+        </section>
+      </main>
+
+
       <!-- Search Result Area -->
       <main class="result-section is-hidden">
         <section>

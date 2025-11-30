@@ -9,18 +9,20 @@ const scopes = 'user-read-email user-read-private'; //Scopes = permissions you w
 const authEndpoint = 'https://accounts.spotify.com/authorize';
 const tokenEndpoint = 'https://accounts.spotify.com/api/token';
 
+// DOM references
 const loginBtn   = document.getElementById('login-btn');
 const logoutBtn  = document.getElementById('logout-btn');
 const output     = document.getElementById('output');
 
-//Debug toggle for results section
+// Debug toggle for results section
 const toggleResultsBtn = document.getElementById('toggle-results-btn');
 
-//Result Area
+// Result Area
 const resultsContainer = document.getElementById('results-container');
 const resultsSection   = document.querySelector('.result-section'); // NOTE: singular!
-const resultsStatus   = document.getElementById('results-status');
-//Track search elements
+const resultsStatus    = document.getElementById('results-status');
+
+// Track search elements
 const trackForm       = document.getElementById('track-search-form');
 const trackQueryInput = document.getElementById('track-query');
 
@@ -28,9 +30,21 @@ const trackQueryInput = document.getElementById('track-query');
 const albumForm       = document.getElementById('album-search-form');
 const albumQueryInput = document.getElementById('album-query');
 
-//Playlist search elements
+// Playlist search elements
 const playlistForm       = document.getElementById('playlist-search-form');
 const playlistQueryInput = document.getElementById('playlist-query');
+
+// Player elements (not fully wired yet)
+const playerSection  = document.getElementById('player-section');
+const playerTitle    = document.getElementById('player-title');
+const playerSubtitle = document.getElementById('player-subtitle');
+const playerCover    = document.querySelector('.player-cover');
+const playerAudio    = document.getElementById('player-audio');
+const playerMessage  = document.getElementById('player-message');
+const playerOpenLink = document.getElementById('player-open-link');
+
+// Fallback cover image (make sure this exists in /images)
+const FALLBACK_IMAGE_URL = 'images/defaultImage.jpg';
 
 // Centralized results object
 let currentResults = {
@@ -46,7 +60,6 @@ let accessToken = null;
  *  PKCE HELPER FUNCTIONS
  *  - Generate code_verifier & code_challenge for PKCE
  ******************************************************/
-//Generate a random string for PKCE code_verifier
 function generateRandomString(length) {
   const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~';
   let text = '';
@@ -80,7 +93,6 @@ function base64urlencode(buffer) {
  *    - Creates code_verifier + code_challenge
  *    - Redirects browser to Spotify /authorize
  ******************************************************/
-// --- Step 1: redirect the user to Spotify login with PKCE parameters ---
 async function startLogin() {
   const codeVerifier = generateRandomString(128);
   localStorage.setItem('spotify_code_verifier', codeVerifier);
@@ -97,7 +109,6 @@ async function startLogin() {
 
   // Send user to Spotify's authorize page
   window.location.href = url.toString();
-
 }
 /*****************************************************/
 
@@ -108,16 +119,13 @@ async function startLogin() {
  *    - Called when the page loads
  *    - If Spotify redirected back with ?code=...
  *      we exchange that code for an access token
- *
- *  Call: POST https://accounts.spotify.com/api/token
  ******************************************************/
-// --- Step 2: when Spotify redirects back with ?code=..., exchange for tokens ---
 async function handleRedirectCallback() {
   const params = new URLSearchParams(window.location.search);
   const code = params.get('code');
   const error = params.get('error');
 
-//If Spotify sent an error (?error=access_denied, etc.)
+  // If Spotify sent an error (?error=access_denied, etc.)
   if (error) {
     output.textContent = `Error from Spotify: ${error}`;
     return;
@@ -125,14 +133,14 @@ async function handleRedirectCallback() {
 
   if (!code) return; // normal load, no redirect in progress
 
-//Retrieve the code_verifier we generated before redirect
+  // Retrieve the code_verifier we generated before redirect
   const codeVerifier = localStorage.getItem('spotify_code_verifier');
   if (!codeVerifier) {
     output.textContent = 'Missing code_verifier. Try logging in again.';
     return;
   }
 
-//Prepare the POST body for /api/token
+  // Prepare the POST body for /api/token
   const body = new URLSearchParams({
     client_id: clientId,
     grant_type: 'authorization_code',
@@ -141,8 +149,7 @@ async function handleRedirectCallback() {
     code_verifier: codeVerifier
   });
 
-// ACTUAL TOKEN REQUEST:
-// POST https://accounts.spotify.com/api/token
+  // Token request
   const response = await fetch(tokenEndpoint, {
     method: 'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -158,7 +165,7 @@ async function handleRedirectCallback() {
   const data = await response.json();
   accessToken = data.access_token;
 
-  //Store token so you don't have to log in every refresh
+  // Store token so you don't have to log in every refresh
   localStorage.setItem('spotify_access_token', accessToken);
 
   // Clean the ?code= from the URL bar
@@ -172,9 +179,7 @@ async function handleRedirectCallback() {
 
 /******************************************************
  *  RESTORING TOKEN (optional convenience)
- *  - If we previously logged in, reload token from storage
  ******************************************************/
-// --- Load token from storage if we already logged in earlier ---
 function restoreToken() {
   const stored = localStorage.getItem('spotify_access_token');
   if (stored) {
@@ -182,7 +187,7 @@ function restoreToken() {
   }
 }
 
-// --- Simple logout ---
+// Simple logout
 function logout() {
   accessToken = null;
   localStorage.removeItem('spotify_access_token');
@@ -193,14 +198,8 @@ function logout() {
 
 
 /******************************************************
- *  fetchMyProfile():
- *    - Called when user clicks "Get My Profile"
- *    - Uses:
- *      GET https://api.spotify.com/v1/me
- *      with Authorization: Bearer <access_token>
- *****************************************************
-//Actual Web API call:
-//GET https://api.spotify.com/v1/me
+ *  fetchMyProfile() – not wired to UI, but left here
+ ******************************************************/
 async function fetchMyProfile() {
   if (!accessToken) {
     output.textContent = 'Not logged in.';
@@ -221,7 +220,7 @@ async function fetchMyProfile() {
   const json = await res.json();
   output.textContent = JSON.stringify(json, null, 2);
 }
-****************************************************/
+/*****************************************************/
 
 
 /******************************************************
@@ -313,7 +312,7 @@ function renderTiles() {
     tile.appendChild(imageDiv);
     tile.appendChild(textDiv);
 
-    // Click target
+    // Click target (for now just log)
     tile.addEventListener('click', () => {
       console.log('Clicked item:', item);
     });
@@ -323,26 +322,25 @@ function renderTiles() {
 }
 
 
-
 // Helper to pull the best cover image depending on item type
 function getImageUrlForItem(item) {
   const raw = item.raw;
-  if (!raw) return null;
+  if (!raw) return FALLBACK_IMAGE_URL;
 
   if (item.type === 'track') {
     // Track cover art is on the album
-    return raw.album?.images?.[0]?.url || null;
+    return raw.album?.images?.[0]?.url || FALLBACK_IMAGE_URL;
   }
 
   if (item.type === 'album') {
-    return raw.images?.[0]?.url || null;
+    return raw.images?.[0]?.url || FALLBACK_IMAGE_URL;
   }
 
   if (item.type === 'playlist') {
-    return raw.images?.[0]?.url || null;
+    return raw.images?.[0]?.url || FALLBACK_IMAGE_URL;
   }
 
-  return null;
+  return FALLBACK_IMAGE_URL;
 }
 /*****************************************************/
 
@@ -351,39 +349,55 @@ function getImageUrlForItem(item) {
  *  NORMALIZERS – turn raw Spotify JSON into simple objects
  ******************************************************/
 function normalizeTrackItems(data) {
-  const items = data.tracks?.items || [];
-  return items.map(track => ({
-    id: track.id,
-    type: 'track',
-    title: track.name,
-    subtitle: track.artists.map(a => a.name).join(', '),
-    extra: track.album?.name || '',
-    raw: track          // keep full Spotify object for later
-  }));
+  const rawItems = data.tracks?.items;
+  if (!Array.isArray(rawItems)) return [];
+
+  return rawItems
+    .filter(t => t && typeof t === 'object')
+    .map(track => ({
+      id: track.id ?? '',
+      type: 'track',
+      title: track.name ?? '(Untitled track)',
+      subtitle: Array.isArray(track.artists)
+        ? track.artists.map(a => a.name).filter(Boolean).join(', ')
+        : 'Unknown artist',
+      extra: track.album?.name || '',
+      raw: track          // keep full Spotify object for later
+    }));
 }
 
 function normalizeAlbumItems(data) {
-  const items = data.albums?.items || [];
-  return items.map(album => ({
-    id: album.id,
-    type: 'album',
-    title: album.name,
-    subtitle: album.artists.map(a => a.name).join(', '),
-    extra: `${album.total_tracks} tracks • ${album.release_date}`,
-    raw: album
-  }));
+  const rawItems = data.albums?.items;
+  if (!Array.isArray(rawItems)) return [];
+
+  return rawItems
+    .filter(album => album && typeof album === 'object')
+    .map(album => ({
+      id: album.id ?? '',
+      type: 'album',
+      title: album.name ?? '(Untitled album)',
+      subtitle: Array.isArray(album.artists)
+        ? album.artists.map(a => a.name).filter(Boolean).join(', ')
+        : 'Unknown artist',
+      extra: `${album.total_tracks ?? 0} tracks • ${album.release_date ?? 'Unknown date'}`,
+      raw: album
+    }));
 }
 
 function normalizePlaylistItems(data) {
-  const items = data.playlists?.items || [];
-  return items.map(pl => ({
-    id: pl.id,
-    type: 'playlist',
-    title: pl.name,
-    subtitle: pl.owner?.display_name || 'Unknown owner',
-    extra: `${pl.tracks?.total ?? 0} tracks`,
-    raw: pl
-  }));
+  const rawItems = data.playlists?.items;
+  if (!Array.isArray(rawItems)) return [];
+
+  return rawItems
+    .filter(pl => pl && typeof pl === 'object')   // drop any null/undefined entries
+    .map(pl => ({
+      id: pl.id ?? '',
+      type: 'playlist',
+      title: pl.name ?? '(Untitled playlist)',
+      subtitle: pl.owner?.display_name || 'Unknown owner',
+      extra: `${pl.tracks?.total ?? 0} tracks`,
+      raw: pl
+    }));
 }
 /*****************************************************/
 
@@ -399,6 +413,7 @@ async function searchTracks(query) {
     resultsSection.classList.remove('is-hidden');
     return;
   }
+
   const encodedQuery = encodeURIComponent(query);
   const url = `https://api.spotify.com/v1/search?type=track&q=${encodedQuery}&limit=25`;
 
@@ -428,7 +443,6 @@ async function searchTracks(query) {
     }
   }
 }
-
 /*****************************************************/
 
 
@@ -446,6 +460,7 @@ async function searchAlbums(query) {
 
   const encodedQuery = encodeURIComponent(query);
   const url = `https://api.spotify.com/v1/search?type=album&q=${encodedQuery}&limit=25`;
+
   if (resultsStatus) {
     resultsStatus.textContent = 'Searching albums...';
   }
@@ -472,7 +487,6 @@ async function searchAlbums(query) {
     }
   }
 }
-
 /*****************************************************/
 
 
@@ -490,6 +504,7 @@ async function searchPlaylists(query) {
 
   const encodedQuery = encodeURIComponent(query);
   const url = `https://api.spotify.com/v1/search?type=playlist&q=${encodedQuery}&limit=25`;
+
   if (resultsStatus) {
     resultsStatus.textContent = 'Searching playlists...';
   }
@@ -516,9 +531,7 @@ async function searchPlaylists(query) {
     }
   }
 }
-
 /*****************************************************/
-
 
 
 /******************************************************
@@ -533,28 +546,23 @@ function updateUI() {
 /*****************************************************/
 
 
-
 /******************************************************
  *  APP INIT
- *  - Wires up button click handlers
- *  - Restores token (if any)
- *  - Handles redirect back from Spotify
  ******************************************************/
 loginBtn.addEventListener('click', startLogin);
 logoutBtn.addEventListener('click', logout);
 
-
-// Set up debug toggle once
+// Debug toggle
 if (toggleResultsBtn && resultsSection) {
   toggleResultsBtn.addEventListener('click', () => {
     resultsSection.classList.toggle('is-hidden');
   });
 }
 
-//Track search submit handler
+// Track search submit handler
 if (trackForm) {
   trackForm.addEventListener('submit', (event) => {
-    event.preventDefault(); // stop page reload
+    event.preventDefault();
     const query = trackQueryInput.value.trim();
     if (!query) return;
     searchTracks(query);
@@ -581,8 +589,7 @@ if (playlistForm) {
   });
 }
 
-
 restoreToken();
 handleRedirectCallback();
 updateUI();
-/*****************************************************/
+/******************************************************/
