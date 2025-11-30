@@ -305,7 +305,7 @@ async function searchTracks(query) {
   }
 
   const encodedQuery = encodeURIComponent(query);
-  const url = `https://api.spotify.com/v1/search?type=track&q=${encodedQuery}&limit=10`;
+  const url = `https://api.spotify.com/v1/search?type=track&q=${encodedQuery}&limit=25`;
 
   resultsOutput.textContent = 'Searching tracks...';
   resultsSection.classList.remove('is-hidden');
@@ -341,7 +341,7 @@ async function searchAlbums(query) {
   }
 
   const encodedQuery = encodeURIComponent(query);
-  const url = `https://api.spotify.com/v1/search?type=album&q=${encodedQuery}&limit=10`;
+  const url = `https://api.spotify.com/v1/search?type=album&q=${encodedQuery}&limit=25`;
 
   resultsOutput.textContent = 'Searching albums...';
   resultsSection.classList.remove('is-hidden');
@@ -377,7 +377,7 @@ async function searchPlaylists(query) {
   }
 
   const encodedQuery = encodeURIComponent(query);
-  const url = `https://api.spotify.com/v1/search?type=playlist&q=${encodedQuery}&limit=10`;
+  const url = `https://api.spotify.com/v1/search?type=playlist&q=${encodedQuery}&limit=25`;
 
   resultsOutput.textContent = 'Searching playlists...';
   resultsSection.classList.remove('is-hidden');
