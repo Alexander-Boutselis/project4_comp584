@@ -11,7 +11,6 @@ const tokenEndpoint = 'https://accounts.spotify.com/api/token';
 
 const loginBtn   = document.getElementById('login-btn');
 const logoutBtn  = document.getElementById('logout-btn');
-const profileBtn = document.getElementById('profile-btn');
 const output     = document.getElementById('output');
 
 //Debug toggle for results section
@@ -412,7 +411,6 @@ function updateUI() {
 
   loginBtn.disabled   = loggedIn;
   logoutBtn.disabled  = !loggedIn;
-  profileBtn.disabled = !loggedIn;
 }
 /*****************************************************/
 
