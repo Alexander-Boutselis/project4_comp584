@@ -132,6 +132,9 @@ button[disabled] {
   white-space: pre-wrap;
   font-size: 0.85rem;
   opacity: 0.9;
+
+  /*Popmotion*/
+  display: inline-block;
 }
 
 /* ============= Result Tiles ============= */
@@ -157,6 +160,11 @@ button[disabled] {
   border-radius: 0.75rem;
   border: 1px solid #333;        /* subtle border to show click area */
   text-align: left;
+
+  /*Popmotion*/
+  position: relative;
+  transform-origin: center;
+  will-change: transform, box-shadow;
 }
 
 .result-tile:hover {
@@ -205,6 +213,10 @@ button[disabled] {
   font-size: 0.8rem;
   margin: 0;
   color: #ccc;
+}
+
+.results-status.loading {
+  color: #1db954; /* Spotify green while searching */
 }
 
 

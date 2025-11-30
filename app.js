@@ -48,6 +48,81 @@ let accessToken = null;
 
 
 /******************************************************
+ *  POPMOTION ANIMATIONS
+ *  (uses global popmotion from index.html script tag)
+ ******************************************************/
+const { animate } = window.popmotion || {};
+let loadingAnimation = null;
+
+// Pulse the resultsStatus while a search is running
+function startLoadingAnimation() {
+  if (!resultsStatus || !animate) return;
+
+  // if a previous animation exists, stop it first
+  stopLoadingAnimation();
+
+  resultsStatus.classList.add('loading');
+
+  loadingAnimation = animate({
+    from: 0,
+    to: 1,
+    duration: 600,
+    repeat: Infinity,
+    yoyo: true,
+    onUpdate: (v) => {
+      const scale   = 1 + v * 0.05;        // up to 5% larger
+      const opacity = 0.7 + v * 0.3;       // 0.7 → 1.0
+      resultsStatus.style.transform = `scale(${scale})`;
+      resultsStatus.style.opacity   = String(opacity);
+    }
+  });
+}
+
+function stopLoadingAnimation() {
+  if (loadingAnimation && typeof loadingAnimation.stop === 'function') {
+    loadingAnimation.stop();
+  }
+  loadingAnimation = null;
+
+  if (resultsStatus) {
+    resultsStatus.style.transform = 'none';
+    resultsStatus.style.opacity   = '';
+    resultsStatus.classList.remove('loading');
+  }
+}
+
+// Attach a hover scale animation to each result tile
+function attachTileHoverAnimation(tile) {
+  if (!animate || !tile) return;
+
+  tile.addEventListener('mouseenter', () => {
+    animate({
+      from: 0,
+      to: 1,
+      duration: 150,
+      onUpdate: (v) => {
+        const scale = 1 + v * 0.03; // up to +3%
+        tile.style.transform = `scale(${scale})`;
+      }
+    });
+  });
+
+  tile.addEventListener('mouseleave', () => {
+    animate({
+      from: 1,
+      to: 0,
+      duration: 150,
+      onUpdate: (v) => {
+        const scale = 1 + v * 0.03;
+        tile.style.transform = `scale(${scale})`;
+      }
+    });
+  });
+}
+/*****************************************************/
+
+
+/******************************************************
  *  PKCE HELPER FUNCTIONS
  *  - Generate code_verifier & code_challenge for PKCE
  ******************************************************/
@@ -201,7 +276,6 @@ function logout() {
   // Update buttons, etc.
   updateUI();
 }
-
 /*****************************************************/
 
 
