@@ -83,11 +83,10 @@ async function startLogin() {
   url.searchParams.set('code_challenge', codeChallenge);
   url.searchParams.set('scope', scopes);
 
-  searchAreas.classList.remove('is-hidden');
-
-
   // Send user to Spotify's authorize page
   window.location.href = url.toString();
+  searchAreas.classList.remove('is-hidden');
+  
 }
 /*****************************************************/
 
