@@ -18,6 +18,7 @@ const toggleResultsBtn = document.getElementById('toggle-results-btn');
 
 //Result Area
 const resultsContainer = document.getElementById('results-container');
+const resultsSection   = document.getElementById('results-section');
 const resultsStatus   = document.getElementById('results-status');
 
 //Track search elements
