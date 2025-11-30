@@ -85,8 +85,7 @@ async function startLogin() {
 
   // Send user to Spotify's authorize page
   window.location.href = url.toString();
-  searchAreas.classList.remove('is-hidden');
-  
+
 }
 /*****************************************************/
 
@@ -271,6 +270,13 @@ async function searchTracks(query) {
  ******************************************************/
 function updateUI() {
   const loggedIn = !!accessToken;
+
+  if (loggedIn) {
+    searchAreas.classList.remove('is-hidden');
+  }else{
+  searchAreas.classList.add('is-hidden');
+  }
+
   loginBtn.disabled   = loggedIn;
   logoutBtn.disabled  = !loggedIn;
   profileBtn.disabled = !loggedIn;
