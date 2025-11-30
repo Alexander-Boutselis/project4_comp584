@@ -74,24 +74,23 @@ button[disabled] {
 
 
 /*================= Search Area =================*/
-.search-section {
+.search-section{
   display: grid;
-  grid-template-columns: 1fr; /*1 column by default */
-  grid-auto-flow: row;
-  gap: 0.5rem;
-  padding: 0.5rem;
+  grid-template-columns: repeat(3, minmax(auto, 1fr));
+  grid-auto-flow: row; 
+  gap: 0.5rem;    
+  padding: 0.5rem 0.5rem 0.5rem 0.5rem;        
   width: 100%;
-  background: #111;
-  justify-items: center; /*center cards in the column */
+  background: #111; 
 }
 
-.search-section section {
+.search-section section{
   width: 100%;
-  max-width: 480px; /*keep each search card nicely centered */
   padding-bottom: 1rem;
-  background: #000;
-  border-radius: 1rem;
+  background: #000;  
+  border-radius: 1rem;      
   border: none;
+  justify-items: center;
   align-content: flex-start;
 }
 
@@ -127,7 +126,6 @@ button[disabled] {
 }
 
 
-
 /*Status / debug text at top of results */
 .results-status {
   margin: 0 0 0.75rem;
@@ -141,6 +139,7 @@ button[disabled] {
 }
 
 /* ============= Result Tiles ============= */
+
 /* Container: stack tiles vertically, full width, left-aligned */
 .results-container {
   display: flex;
@@ -151,15 +150,16 @@ button[disabled] {
   width: 100%;
 }
 
+/* Each tile: left-justified, clickable card in the existing dark theme */
 .result-tile {
   display: flex;
   align-items: center;
   gap: 0.75rem;
   width: 100%;
   padding: 0.5rem 0.75rem;
-  background: #000; 
+  background: #000;              /*matches your existing theme*/
   border-radius: 0.75rem;
-  border: 1px solid #333; /*subtle border to show click area */
+  border: 1px solid #333;        /*subtle border to show click area*/
   text-align: left;
 
   /*Popmotion*/
@@ -169,14 +169,15 @@ button[disabled] {
 }
 
 .result-tile:hover {
-  border-color: #1db954; /* Spotify green accent on hover */
+  border-color: #1db954;         /*Spotify green accent on hover */
   background: #111;
   cursor: pointer;
 }
 
+/* Left-hand index number */
 .tile-index {
   flex-shrink: 0;
-  width: 1.5rem; 
+  width: 1.5rem;                 /*fixed width so numbers line up */
   text-align: right;
   font-size: 0.8rem;
   color: #888;
@@ -188,44 +189,31 @@ button[disabled] {
   width: 56px;
   height: 56px;
   border-radius: 0.5rem;
-  background-color: #222; /*fallback if no image */
+  background-color: #222;        /*fallback if no image */
   background-size: cover;
   background-position: center;
 }
 
 /* Text column */
 .tile-text {
-  min-width: 0; /*lets ellipsis work correctly */
+  min-width: 0;                  /*lets ellipsis work correctly */
 }
 
-.result-tile {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  width: 100%;
-  padding: 0.5rem 0.75rem;
-  background: #000;
-  border-radius: 0.75rem;
-  border: 1px solid #333;
-  text-align: left;
-
-  /* Popmotion */
-  position: relative;
-  transform-origin: center;
-  will-change: transform, box-shadow;
-  box-sizing: border-box;
+/* Title (1 line, truncated) */
+.result-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin: 0 0 0.2rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
-
 
 /* Subtitle (artist/owner + extra) */
 .result-subtitle {
   font-size: 0.8rem;
   margin: 0;
   color: #ccc;
-}
-
-.results-status.loading {
-  color: #1db954; /* Spotify green while searching */
 }
 
 
@@ -239,20 +227,6 @@ button[disabled] {
 .is-hidden {
   display: none;
 }
-
-
-//*================= Dektop Layout =================*/
-@media (min-width: 1100px) {
-  .search-section {
-    grid-template-columns: repeat(3, minmax(0, 1fr));  /* 3 columns on wide screens */
-    justify-items: stretch;
-  }
-
-  .search-section section {
-    max-width: none;
-  }
-}
-
 
 //*================= Tablet & Mobile Layout =================*/
 @media (max-width: 900px) {
