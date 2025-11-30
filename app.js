@@ -271,12 +271,7 @@ async function searchTracks(query) {
 function updateUI() {
   const loggedIn = !!accessToken;
 
-  if (loggedIn) {
-    searchAreas.classList.remove('is-hidden');
-  }else{
-  searchAreas.classList.add('is-hidden');
-  }
-
+  searchAreas.classList.toggle('is-hidden');
   loginBtn.disabled   = loggedIn;
   logoutBtn.disabled  = !loggedIn;
   profileBtn.disabled = !loggedIn;
