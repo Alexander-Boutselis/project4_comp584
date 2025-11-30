@@ -125,6 +125,63 @@ button[disabled] {
 }
 
 
+/*Status / debug text at top of results */
+.results-status {
+  margin: 0 0 0.75rem;
+  font-family: "JetBrains Mono", "Fira Code", Consolas, monospace;
+  white-space: pre-wrap;
+  font-size: 0.85rem;
+  opacity: 0.9;
+}
+
+/*Container where tiles will be injected */
+.results-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+/*We’ll use these classes on text inside tiles later */
+.result-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin: 0 0 0.25rem;
+
+  /*Single-line truncation with ellipsis */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.result-subtitle {
+  font-size: 0.8rem;
+  margin: 0;
+  opacity: 0.8;
+}
+
+/*This will be used later for .result-tile structure */
+.result-tile {
+  display: flex;
+  gap: 0.75rem;
+  padding: 0.6rem 0.75rem;
+  border-radius: 6px;
+  background-color: #111;
+  align-items: center;
+}
+
+/*Placeholder for cover art area */
+.tile-image {
+  width: 56px;
+  height: 56px;
+  border-radius: 4px;
+  background-color: #333;
+  flex-shrink: 0;
+}
+
+.tile-text {
+  min-width: 0; /*helps ellipsis work inside flex layouts */
+}
+
 /*================= debug =================*/
 .debug{
   width: 100%;
@@ -140,7 +197,7 @@ button[disabled] {
 
 @media (max-width: 900px) {
 
-  /* Let rows breathe edge-to-edge a bit more on tablet */
+  /*Let rows breathe edge-to-edge a bit more on tablet */
   .wrapper {
     padding: 0.75rem;
   }
@@ -150,7 +207,7 @@ button[disabled] {
     gap: 0.75rem;
   }
 
-  /* Info row: stack into a single column on tablet */
+  /*Info row: stack into a single column on tablet */
   .search-section {
     grid-template-columns: 1fr;
     width: 100%;

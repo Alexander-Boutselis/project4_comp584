@@ -56,8 +56,6 @@
             />
             <button type="submit">Search</button>
           </form>
-
-          <div id="search-results"></div>
         </section>
         <section class="playlist-search">
           <h2>Search for a Playlist</h2>
@@ -81,6 +79,9 @@
           <h2>Results</h2>
           <div class="result-window">
             <pre id="results-output">(Songs/Albums/Playlists will appear here)</pre>
+            <!-- Container where JS will inject tiles -->
+            <div id="results-container" class="results-container">
+            </div>
           </div>
         </section>
       </main>

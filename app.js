@@ -15,6 +15,9 @@ const output     = document.getElementById('output');
 
 //Debug toggle for results section
 const toggleResultsBtn = document.getElementById('toggle-results-btn');
+
+//Result Area
+const resultsContainer = document.getElementById('results-container');
 const resultsSection   = document.querySelector('.result-section'); // NOTE: singular!
 
 //Track search elements
@@ -235,20 +238,100 @@ function renderResults() {
   if (!currentResults.items || currentResults.items.length === 0) {
     resultsOutput.textContent = 'No results found.';
     resultsSection.classList.remove('is-hidden');
+
+    // Clear any old tiles if there are no results
+    if (resultsContainer) {
+    resultsContainer.innerHTML = '';
+    }
     return;
   }
 
-  // Generic text output for now; tiles can come later
   const lines = currentResults.items.map((item, idx) => {
-    const prefix = `${idx + 1}. `;
-    const base   = `${item.title} — ${item.subtitle}`;
-    return item.extra ? `${prefix}${base} (${item.extra})` : `${prefix}${base}`;
+  const prefix = `${idx + 1}. `;
+  const base   = `${item.title} — ${item.subtitle}`;
+  return item.extra ? `${prefix}${base} (${item.extra})` : `${prefix}${base}`;
   });
 
   resultsOutput.textContent = lines.join('\n');
   resultsSection.classList.remove('is-hidden');
 
+  renderTiles();
   console.log('Current results:', currentResults);
+}
+
+function renderTiles() {
+  if (!resultsContainer) return;
+
+  // Clear old tiles
+  resultsContainer.innerHTML = '';
+
+  currentResults.items.forEach((item) => {
+    // Outer tile
+    const tile = document.createElement('article');
+    tile.className = 'result-tile';
+
+    // Image box
+    const imageDiv = document.createElement('div');
+    imageDiv.className = 'tile-image';
+
+    const imgUrl = getImageUrlForItem(item);
+    if (imgUrl) {
+      imageDiv.style.backgroundImage = `url("${imgUrl}")`;
+      imageDiv.style.backgroundSize = 'cover';
+      imageDiv.style.backgroundPosition = 'center';
+    }
+
+    // Text wrapper
+    const textDiv = document.createElement('div');
+    textDiv.className = 'tile-text';
+
+    // Title (uses CSS truncation)
+    const titleEl = document.createElement('h3');
+    titleEl.className = 'result-title';
+    titleEl.textContent = item.title;
+
+    // Subtitle (artist/owner + extra info)
+    const subtitleEl = document.createElement('p');
+    subtitleEl.className = 'result-subtitle';
+
+    const extraText = item.extra ? ` • ${item.extra}` : '';
+    subtitleEl.textContent = `${item.subtitle}${extraText}`;
+
+    textDiv.appendChild(titleEl);
+    textDiv.appendChild(subtitleEl);
+
+    tile.appendChild(imageDiv);
+    tile.appendChild(textDiv);
+
+    // For now, clicking a tile just logs it
+    tile.addEventListener('click', () => {
+      console.log('Clicked item:', item);
+    });
+
+    resultsContainer.appendChild(tile);
+  });
+}
+
+
+// Helper to pull the best cover image depending on item type
+function getImageUrlForItem(item) {
+  const raw = item.raw;
+  if (!raw) return null;
+
+  if (item.type === 'track') {
+    // Track cover art is on the album
+    return raw.album?.images?.[0]?.url || null;
+  }
+
+  if (item.type === 'album') {
+    return raw.images?.[0]?.url || null;
+  }
+
+  if (item.type === 'playlist') {
+    return raw.images?.[0]?.url || null;
+  }
+
+  return null;
 }
 /*****************************************************/
 
