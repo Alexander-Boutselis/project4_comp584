@@ -78,17 +78,22 @@ button[disabled] {
 
 .search-section {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr)); /* 3 columns by default */
+  grid-template-columns: repeat(3, minmax(0, 1fr)); /*3 columns by default */
   gap: 0.75rem;
   padding: 0.75rem;
   width: 100%;
   background: #111;
+  justify-items: center;
 }
 
 .search-section section {
+  width: 100%;
+  max-width: 480px; 
+  padding-bottom: 1rem;
   background: #000;
   border-radius: 1rem;
-  padding: 1rem 1.25rem 1.25rem;
+  border: none;
+  align-content: flex-start;
 }
 
 /* ================= Result Area ================= */
@@ -210,6 +215,7 @@ button[disabled] {
 .debug {
   width: 100%;
   background: #111;
+  justify-items: center;
 }
 
 .is-hidden {
