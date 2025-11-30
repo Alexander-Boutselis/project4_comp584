@@ -47,7 +47,6 @@ let accessToken = null;
 /*****************************************************/
 
 
-
 /******************************************************
  *  POPMOTION ANIMATIONS
  *  (uses global popmotion from index.html script tag)
@@ -55,7 +54,7 @@ let accessToken = null;
 const pop = window.popmotion;
 console.log('Popmotion object:', pop);
 
-const tween = pop && pop.tween;
+const { tween } = pop || {};
 if (!tween) {
   console.error('Popmotion tween() not available – check script include.');
 }
@@ -75,7 +74,7 @@ function startLoadingAnimation() {
     from: 0,
     to: 1,
     duration: 600,
-    flip: Infinity      // ping-pong 0 → 1 → 0 → 1...
+    flip: Infinity      // 0→1→0→1...
   }).start((v) => {
     const scale   = 1 + v * 0.05;       // up to +5%
     const opacity = 0.7 + v * 0.3;      // 0.7 → 1.0
@@ -97,14 +96,13 @@ function stopLoadingAnimation() {
   }
 }
 
-// Attach a hover scale animation to each result tile
+// Hover animation for each result tile
 function attachTileHoverAnimation(tile) {
   if (!tween || !tile) return;
 
   let hoverPlayback = null;
 
   tile.addEventListener('mouseenter', () => {
-    console.log('Popmotion hover: mouseenter on tile');
     if (hoverPlayback) hoverPlayback.stop();
 
     hoverPlayback = tween({
@@ -112,13 +110,12 @@ function attachTileHoverAnimation(tile) {
       to: 1,
       duration: 150
     }).start((v) => {
-      const scale = 1 + v * 0.03; // up to +3%
+      const scale = 1 + v * 0.03;       // up to +3%
       tile.style.transform = `scale(${scale})`;
     });
   });
 
   tile.addEventListener('mouseleave', () => {
-    console.log('Popmotion hover: mouseleave on tile');
     if (hoverPlayback) hoverPlayback.stop();
 
     hoverPlayback = tween({
@@ -132,6 +129,7 @@ function attachTileHoverAnimation(tile) {
   });
 }
 /*****************************************************/
+
 
 
 
