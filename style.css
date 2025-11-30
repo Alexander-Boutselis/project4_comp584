@@ -1,8 +1,8 @@
 /* ===============================
-   COMP 584 - Grid Layout Assignment
+   COMP 584 - API Assignment
    =============================== */
 
-/* Global box model*/
+/* Global box model */
 * {
   box-sizing: border-box;
 }
@@ -14,12 +14,12 @@ body {
 }
 
 body {
-  margin: 0;
   font-family: Arial, Helvetica, sans-serif;
   background: #000;
   color: #fff;
 }
 
+/* Page shell */
 .wrapper {
   max-width: 960px;
   margin: 0 auto;
@@ -31,6 +31,7 @@ header {
   text-align: center;
 }
 
+/* Auth buttons */
 .controls {
   display: flex;
   flex-wrap: wrap;
@@ -54,6 +55,7 @@ button[disabled] {
   cursor: default;
 }
 
+/* Status tile */
 .output-tile {
   background: #111;
   padding: 1rem;
@@ -72,70 +74,59 @@ button[disabled] {
   padding: 0.5rem;
 }
 
+/* ================= Search Area ================= */
 
-/*================= Search Area =================*/
-.search-section{
+.search-section {
   display: grid;
-  grid-template-columns: repeat(3, minmax(auto, 1fr));
-  grid-auto-flow: row; 
-  gap: 0.5rem;    
-  padding: 0.5rem 0.5rem 0.5rem 0.5rem;        
+  grid-template-columns: repeat(3, minmax(0, 1fr)); /* 3 columns by default */
+  gap: 0.75rem;
+  padding: 0.75rem;
   width: 100%;
-  background: #111; 
+  background: #111;
 }
 
-.search-section section{
-  width: 100%;
-  padding-bottom: 1rem;
-  background: #000;  
-  border-radius: 1rem;      
-  border: none;
-  justify-items: center;
-  align-content: flex-start;
+.search-section section {
+  background: #000;
+  border-radius: 1rem;
+  padding: 1rem 1.25rem 1.25rem;
 }
 
+/* ================= Result Area ================= */
 
-/*================= Result Area =================*/
-.result-section{
+.result-section {
   display: grid;
-  grid-template-columns: repeat(1, minmax(auto, 1fr));
-  grid-auto-flow: row; 
-  gap: 0.5rem;    
-  padding: 0.5rem 0.5rem 0.5rem 0.5rem;        
+  grid-template-columns: 1fr;
+  gap: 0.5rem;
+  padding: 0.75rem;
   width: 100%;
-  background: #111; 
+  background: #111;
 }
 
-.result-section section{
-  width: 100%;
-  padding-bottom: 1rem;
-  background: #000;  
-  border-radius: 1rem;      
-  border: none;
-  justify-items: center;
-  align-content: flex-start;
+.result-section section {
+  background: #000;
+  border-radius: 1rem;
+  padding: 1rem 1.25rem 1.25rem;
 }
 
-.result-window{
+.result-window {
   width: 100%;
   min-height: 10rem;
-  background: #111; 
-  justify-items: center;
+  background: #111;
   padding: 0.5rem 0.75rem;
-  box-sizing: border-box;
 }
 
-
-/*Status / debug text at top of results */
+/* Status / debug text at top of results */
 .results-status {
   margin: 0 0 0.75rem;
   font-family: "JetBrains Mono", "Fira Code", Consolas, monospace;
   white-space: pre-wrap;
   font-size: 0.85rem;
   opacity: 0.9;
+  display: inline-block; /* needed for Popmotion scale animation */
+}
 
-  /*Popmotion*/
-  display: inline-block;
+.results-status.loading {
+  color: #1db954; /* Spotify green while searching */
 }
 
 /* ============= Result Tiles ============= */
@@ -144,32 +135,30 @@ button[disabled] {
 .results-container {
   display: flex;
   flex-direction: column;
-  align-items: stretch;   /* each tile stretches full width of container */
+  align-items: stretch;
   gap: 0.5rem;
   margin-top: 0.5rem;
   width: 100%;
 }
 
-/* Each tile: left-justified, clickable card in the existing dark theme */
+/* Each tile: clickable card */
 .result-tile {
   display: flex;
   align-items: center;
   gap: 0.75rem;
   width: 100%;
   padding: 0.5rem 0.75rem;
-  background: #000;              /*matches your existing theme*/
+  background: #000;
   border-radius: 0.75rem;
-  border: 1px solid #333;        /*subtle border to show click area*/
+  border: 1px solid #333;
   text-align: left;
-
-  /*Popmotion*/
-  position: relative;
+  position: relative;          /* for Popmotion transform */
   transform-origin: center;
-  will-change: transform, box-shadow;
+  will-change: transform;
 }
 
 .result-tile:hover {
-  border-color: #1db954;         /*Spotify green accent on hover */
+  border-color: #1db954;
   background: #111;
   cursor: pointer;
 }
@@ -177,7 +166,7 @@ button[disabled] {
 /* Left-hand index number */
 .tile-index {
   flex-shrink: 0;
-  width: 1.5rem;                 /*fixed width so numbers line up */
+  width: 1.5rem;
   text-align: right;
   font-size: 0.8rem;
   color: #888;
@@ -189,14 +178,14 @@ button[disabled] {
   width: 56px;
   height: 56px;
   border-radius: 0.5rem;
-  background-color: #222;        /*fallback if no image */
+  background-color: #222;
   background-size: cover;
   background-position: center;
 }
 
 /* Text column */
 .tile-text {
-  min-width: 0;                  /*lets ellipsis work correctly */
+  min-width: 0; /* lets ellipsis work correctly */
 }
 
 /* Title (1 line, truncated) */
@@ -216,53 +205,38 @@ button[disabled] {
   color: #ccc;
 }
 
+/* ================= Debug ================= */
 
-/*================= debug =================*/
-.debug{
+.debug {
   width: 100%;
-  background: #111;  
-  justify-items: center;
+  background: #111;
 }
 
 .is-hidden {
   display: none;
 }
 
-//*================= Tablet & Mobile Layout =================*/
-@media (max-width: 900px) {
+/* ================= Tablet & Mobile (≤ 900px) ================= */
 
+@media (max-width: 900px) {
   .wrapper {
     max-width: 100%;
     padding: 1rem 0.75rem;
   }
 
-  /*Search cards: single column */
   .search-section {
-    grid-template-columns: 1fr;
-    width: 100%;
+    grid-template-columns: 1fr;   /* stack search cards */
     padding: 0.5rem 0;
-    gap: 0.75rem;
   }
 
-  /*Result card full-width, single column */
   .result-section {
-    grid-template-columns: 1fr;
-    width: 100%;
     padding: 0.5rem 0;
-  }
-
-  .result-window,
-  .results-container,
-  .result-tile {
-    width: 100%;
-    max-width: 100%;
   }
 
   .result-window {
     padding: 0.5rem 0.5rem;
   }
 
-  /*Slimmer tiles on smaller screens */
   .result-tile {
     padding: 0.5rem;
     gap: 0.5rem;
@@ -273,27 +247,3 @@ button[disabled] {
     height: 48px;
   }
 }
-
-
-@media (max-width: 600px) {
-  .result-tile {
-    padding: 0.4rem;
-    gap: 0.4rem;
-  }
-
-  .tile-image {
-    width: 40px;
-    height: 40px;
-  }
-
-  .result-title {
-    font-size: 0.85rem;
-  }
-
-  .result-subtitle {
-    font-size: 0.75rem;
-  }
-}
-
-
-/*================= x =================*/
