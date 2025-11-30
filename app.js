@@ -102,6 +102,7 @@ function stopLoadingAnimation() {
 
 // Attach a hover scale animation to each result tile
 function attachTileHoverAnimation(tile) {
+  console.log('Popmotion hover: mouseenter on tile');
   if (!animate || !tile) return;
 
   tile.addEventListener('mouseenter', () => {
@@ -117,6 +118,7 @@ function attachTileHoverAnimation(tile) {
   });
 
   tile.addEventListener('mouseleave', () => {
+    console.log('Popmotion hover: mouseleave on tile');
     animate({
       from: 1,
       to: 0,
