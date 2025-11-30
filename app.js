@@ -18,7 +18,10 @@ const output     = document.getElementById('output');
 const toggleResultsBtn = document.getElementById('toggle-results-btn');
 const resultsSection   = document.querySelector('.result-section'); // NOTE: singular!
 
-//track search elements
+//Search Section elements
+const searchAreas = document.getElementById('search-sections');
+
+//Track search elements
 const trackForm       = document.getElementById('track-search-form');
 const trackQueryInput = document.getElementById('track-query');
 const resultsOutput   = document.getElementById('results-output');
@@ -79,6 +82,9 @@ async function startLogin() {
   url.searchParams.set('code_challenge_method', 'S256');
   url.searchParams.set('code_challenge', codeChallenge);
   url.searchParams.set('scope', scopes);
+
+  searchAreas.classList.remove('is-hidden');
+
 
   // Send user to Spotify's authorize page
   window.location.href = url.toString();
@@ -171,6 +177,7 @@ function logout() {
   accessToken = null;
   localStorage.removeItem('spotify_access_token');
   output.textContent = '(Not logged in)';
+  searchAreas.classList.add('is-hidden');
   updateUI();
 }
 /*****************************************************/
