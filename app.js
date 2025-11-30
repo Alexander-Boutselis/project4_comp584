@@ -34,16 +34,7 @@ const albumQueryInput = document.getElementById('album-query');
 const playlistForm       = document.getElementById('playlist-search-form');
 const playlistQueryInput = document.getElementById('playlist-query');
 
-// Player elements (not fully wired yet)
-const playerSection  = document.getElementById('player-section');
-const playerTitle    = document.getElementById('player-title');
-const playerSubtitle = document.getElementById('player-subtitle');
-const playerCover    = document.querySelector('.player-cover');
-const playerAudio    = document.getElementById('player-audio');
-const playerMessage  = document.getElementById('player-message');
-const playerOpenLink = document.getElementById('player-open-link');
-
-// Fallback cover image (make sure this exists in /images)
+// Fallback cover image
 const FALLBACK_IMAGE_URL = 'images/defaultImage.jpg';
 
 // Centralized results object
@@ -178,7 +169,7 @@ async function handleRedirectCallback() {
 
 
 /******************************************************
- *  RESTORING TOKEN (optional convenience)
+ *  RESTORING TOKEN 
  ******************************************************/
 function restoreToken() {
   const stored = localStorage.getItem('spotify_access_token');
@@ -198,7 +189,7 @@ function logout() {
 
 
 /******************************************************
- *  fetchMyProfile() – not wired to UI, but left here
+ *  fetchMyProfile() 
  ******************************************************/
 async function fetchMyProfile() {
   if (!accessToken) {
@@ -292,15 +283,14 @@ function renderTiles() {
     const textDiv = document.createElement('div');
     textDiv.className = 'tile-text';
 
-    // Title (uses CSS truncation)
+    // Title
     const titleEl = document.createElement('h3');
     titleEl.className = 'result-title';
     titleEl.textContent = item.title;
 
-    // Subtitle (artist/owner + extra info)
+    // Subtitle
     const subtitleEl = document.createElement('p');
     subtitleEl.className = 'result-subtitle';
-
     const extraText = item.extra ? ` • ${item.extra}` : '';
     subtitleEl.textContent = `${item.subtitle}${extraText}`;
 
@@ -312,9 +302,18 @@ function renderTiles() {
     tile.appendChild(imageDiv);
     tile.appendChild(textDiv);
 
-    // Click target
+    // 🔴 NEW: click opens Spotify
     tile.addEventListener('click', () => {
-      startPlaybackForItem(item);
+      const url = buildSpotifyUrl(item);
+      if (url) {
+        // Redirect in the same tab:
+        window.location.href = url;
+
+        // If you’d rather open a new tab, use this instead:
+        // window.open(url, '_blank', 'noopener');
+      } else {
+        console.warn('No Spotify URL available for item:', item);
+      }
     });
 
     resultsContainer.appendChild(tile);
@@ -345,6 +344,9 @@ function getImageUrlForItem(item) {
 /*****************************************************/
 
 
+/******************************************************
+ *  URL BUILDER
+ ******************************************************/
 function buildSpotifyUrl(item) {
   if (!item || !item.id) return null;
 
@@ -359,83 +361,6 @@ function buildSpotifyUrl(item) {
   }
 
   return null;
-}
-
-/******************************************************
- * PLAYBACK FUNCTIONS
- ******************************************************/
-async function startPlaybackForItem(item) {
-  if (!playerSection) return;
-
-  // Unhide the media player
-  playerSection.classList.remove('is-hidden');
-
-  // Reset message + audio
-  if (playerMessage) playerMessage.textContent = '';
-  if (playerAudio) {
-    playerAudio.pause();
-    playerAudio.removeAttribute('src');
-    playerAudio.load();
-  }
-
-  // Basic text info
-  const extraText = item.extra ? ` • ${item.extra}` : '';
-
-  if (playerTitle) {
-    playerTitle.textContent = item.title;
-  }
-  if (playerSubtitle) {
-    playerSubtitle.textContent = `${item.subtitle}${extraText}`;
-  }
-
-  // Cover art
-  if (playerCover) {
-    const imgUrl = getImageUrlForItem(item);
-    if (imgUrl) {
-      playerCover.style.backgroundImage = `url("${imgUrl}")`;
-    } else {
-      playerCover.style.backgroundImage = '';
-    }
-  }
-
-  // "Open in Spotify" link
-  if (playerOpenLink) {
-    const url = buildSpotifyUrl(item);
-    if (url) {
-      playerOpenLink.href = url;
-      playerOpenLink.classList.remove('is-hidden');
-    } else {
-      playerOpenLink.classList.add('is-hidden');
-    }
-  }
-
-  // ===== Playback logic (track previews only) =====
-  let previewUrl = null;
-
-  if (item.type === 'track') {
-    // Web API only exposes a 30s preview
-    previewUrl = item.raw?.preview_url || null;
-  } else {
-    // For albums/playlists we’re just showing info + link for now
-    previewUrl = null;
-  }
-
-  if (previewUrl && playerAudio) {
-    playerAudio.src = previewUrl;
-    try {
-      await playerAudio.play(); // may be blocked; then user clicks Play
-    } catch (err) {
-      console.warn('Autoplay blocked, user must click play:', err);
-      if (playerMessage) {
-        playerMessage.textContent = 'Press play to start the preview.';
-      }
-    }
-  } else {
-    if (playerMessage) {
-      playerMessage.textContent =
-        'No preview available. Use "Open in Spotify" to listen.';
-    }
-  }
 }
 /*****************************************************/
 
