@@ -18,7 +18,6 @@ const toggleResultsBtn = document.getElementById('toggle-results-btn');
 
 //Result Area
 const resultsContainer = document.getElementById('results-container');
-const resultsSection   = document.getElementById('results-section');
 const resultsStatus   = document.getElementById('results-status');
 
 //Track search elements
@@ -240,6 +239,8 @@ function renderResults() {
     if (resultsStatus) {
       resultsStatus.textContent = 'No results found.';
     }
+    resultsStatus.classList.remove('is-hidden');
+
 
     // Clear any old tiles if there are no results
     if (resultsContainer) {
@@ -255,7 +256,7 @@ function renderResults() {
     resultsStatus.textContent = `Found ${count} ${typeLabel}.`;
   }
 
-  resultsSection.classList.remove('is-hidden');
+  resultsStatus.classList.remove('is-hidden');
 
   // Tiles handle the detailed display
   renderTiles();
@@ -387,7 +388,7 @@ function normalizePlaylistItems(data) {
 async function searchTracks(query) {
   if (!accessToken) {
     resultsStatus.textContent = 'Please log in with Spotify first.';
-    resultsSection.classList.remove('is-hidden');
+    resultsStatus.classList.remove('is-hidden');
     return;
   }
 
@@ -395,7 +396,7 @@ async function searchTracks(query) {
   const url = `https://api.spotify.com/v1/search?type=track&q=${encodedQuery}&limit=25`;
 
   resultsStatus.textContent = 'Searching tracks...';
-  resultsSection.classList.remove('is-hidden');
+  resultsStatus.classList.remove('is-hidden');
 
   try {
     const res = await fetch(url, {
@@ -423,7 +424,7 @@ async function searchTracks(query) {
 async function searchAlbums(query) {
   if (!accessToken) {
     resultsStatus.textContent = 'Please log in with Spotify first.';
-    resultsSection.classList.remove('is-hidden');
+    resultsStatus.classList.remove('is-hidden');
     return;
   }
 
@@ -431,7 +432,7 @@ async function searchAlbums(query) {
   const url = `https://api.spotify.com/v1/search?type=album&q=${encodedQuery}&limit=25`;
 
   resultsStatus.textContent = 'Searching albums...';
-  resultsSection.classList.remove('is-hidden');
+  resultsStatus.classList.remove('is-hidden');
 
   try {
     const res = await fetch(url, {
@@ -459,7 +460,7 @@ async function searchAlbums(query) {
 async function searchPlaylists(query) {
   if (!accessToken) {
     resultsStatus.textContent = 'Please log in with Spotify first.';
-    resultsSection.classList.remove('is-hidden');
+    resultsStatus.classList.remove('is-hidden');
     return;
   }
 
@@ -467,7 +468,7 @@ async function searchPlaylists(query) {
   const url = `https://api.spotify.com/v1/search?type=playlist&q=${encodedQuery}&limit=25`;
 
   resultsStatus.textContent = 'Searching playlists...';
-  resultsSection.classList.remove('is-hidden');
+  resultsStatus.classList.remove('is-hidden');
 
   try {
     const res = await fetch(url, {
