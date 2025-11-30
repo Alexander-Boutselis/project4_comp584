@@ -18,9 +18,6 @@ const output     = document.getElementById('output');
 const toggleResultsBtn = document.getElementById('toggle-results-btn');
 const resultsSection   = document.querySelector('.result-section'); // NOTE: singular!
 
-//Search Section elements
-const searchAreas = document.getElementById('search-sections');
-
 //Track search elements
 const trackForm       = document.getElementById('track-search-form');
 const trackQueryInput = document.getElementById('track-query');
@@ -271,7 +268,6 @@ async function searchTracks(query) {
 function updateUI() {
   const loggedIn = !!accessToken;
 
-  searchAreas.classList.toggle('is-hidden');
   loginBtn.disabled   = loggedIn;
   logoutBtn.disabled  = !loggedIn;
   profileBtn.disabled = !loggedIn;
