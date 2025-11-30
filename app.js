@@ -23,20 +23,6 @@ const trackForm       = document.getElementById('track-search-form');
 const trackQueryInput = document.getElementById('track-query');
 const resultsOutput   = document.getElementById('results-output');
 
-// Album search elements
-const albumForm       = document.getElementById('album-search-form');
-const albumQueryInput = document.getElementById('album-query');
-
-//Playlist search elements
-const playlistForm       = document.getElementById('playlist-search-form');
-const playlistQueryInput = document.getElementById('playlist-query');
-
-// Centralized results object
-let currentResults = {
-  type: null,   // 'track' | 'album' | 'playlist'
-  items: []     // normalized items
-};
-
 let accessToken = null;
 /*****************************************************/
 
@@ -197,7 +183,7 @@ function logout() {
  *    - Uses:
  *      GET https://api.spotify.com/v1/me
  *      with Authorization: Bearer <access_token>
- *****************************************************
+ ******************************************************/
 //Actual Web API call:
 //GET https://api.spotify.com/v1/me
 async function fetchMyProfile() {
@@ -220,84 +206,27 @@ async function fetchMyProfile() {
   const json = await res.json();
   output.textContent = JSON.stringify(json, null, 2);
 }
-****************************************************/
+/*****************************************************/
 
 
 /******************************************************
- *  RESULT STATE + GENERIC RENDERING
+ *  TRACK SEARCH HELPERS
  ******************************************************/
-function setResults(type, items) {
-  currentResults.type  = type;    // 'track' | 'album' | 'playlist'
-  currentResults.items = items;
-  renderResults();
-}
-
-function renderResults() {
-  if (!currentResults.items || currentResults.items.length === 0) {
-    resultsOutput.textContent = 'No results found.';
-    resultsSection.classList.remove('is-hidden');
+function renderTrackResults(data) {
+  if (!data.tracks || !data.tracks.items || data.tracks.items.length === 0) {
+    resultsOutput.textContent = 'No tracks found for that search.';
     return;
   }
 
-  // Generic text output for now; tiles can come later
-  const lines = currentResults.items.map((item, idx) => {
-    const prefix = `${idx + 1}. `;
-    const base   = `${item.title} — ${item.subtitle}`;
-    return item.extra ? `${prefix}${base} (${item.extra})` : `${prefix}${base}`;
+  // Build a simple text list: Track – Artist(s) (Album)
+  const lines = data.tracks.items.map(track => {
+    const artists = track.artists.map(a => a.name).join(', ');
+    return `${track.name} — ${artists} (${track.album.name})`;
   });
 
   resultsOutput.textContent = lines.join('\n');
-  resultsSection.classList.remove('is-hidden');
-
-  console.log('Current results:', currentResults);
-}
-/*****************************************************/
-
-
-/******************************************************
- *  NORMALIZERS – turn raw Spotify JSON into simple objects
- ******************************************************/
-function normalizeTrackItems(data) {
-  const items = data.tracks?.items || [];
-  return items.map(track => ({
-    id: track.id,
-    type: 'track',
-    title: track.name,
-    subtitle: track.artists.map(a => a.name).join(', '),
-    extra: track.album?.name || '',
-    raw: track          // keep full Spotify object for later
-  }));
 }
 
-function normalizeAlbumItems(data) {
-  const items = data.albums?.items || [];
-  return items.map(album => ({
-    id: album.id,
-    type: 'album',
-    title: album.name,
-    subtitle: album.artists.map(a => a.name).join(', '),
-    extra: `${album.total_tracks} tracks • ${album.release_date}`,
-    raw: album
-  }));
-}
-
-function normalizePlaylistItems(data) {
-  const items = data.playlists?.items || [];
-  return items.map(pl => ({
-    id: pl.id,
-    type: 'playlist',
-    title: pl.name,
-    subtitle: pl.owner?.display_name || 'Unknown owner',
-    extra: `${pl.tracks?.total ?? 0} tracks`,
-    raw: pl
-  }));
-}
-/*****************************************************/
-
-
-/******************************************************
- *  SEARCH TRACKS TO SPOTIFY
- ******************************************************/
 async function searchTracks(query) {
   if (!accessToken) {
     resultsOutput.textContent = 'Please log in with Spotify first.';
@@ -313,95 +242,23 @@ async function searchTracks(query) {
 
   try {
     const res = await fetch(url, {
-      headers: { Authorization: `Bearer ${accessToken}` }
+      headers: {
+        Authorization: `Bearer ${accessToken}`
+      }
     });
 
     if (!res.ok) {
-      resultsOutput.textContent = `Track search error: ${res.status} ${res.statusText}`;
+      resultsOutput.textContent = `Search error: ${res.status} ${res.statusText}`;
       return;
     }
 
-    const data  = await res.json();
-    const items = normalizeTrackItems(data);
-    setResults('track', items);
+    const data = await res.json();
+    renderTrackResults(data);
   } catch (err) {
-    resultsOutput.textContent = `Network error (tracks): ${err.message}`;
+    resultsOutput.textContent = `Network error: ${err.message}`;
   }
 }
 /*****************************************************/
-
-
-/******************************************************
- *  SEARCH ALBUMS TO SPOTIFY
- ******************************************************/
-async function searchAlbums(query) {
-  if (!accessToken) {
-    resultsOutput.textContent = 'Please log in with Spotify first.';
-    resultsSection.classList.remove('is-hidden');
-    return;
-  }
-
-  const encodedQuery = encodeURIComponent(query);
-  const url = `https://api.spotify.com/v1/search?type=album&q=${encodedQuery}&limit=10`;
-
-  resultsOutput.textContent = 'Searching albums...';
-  resultsSection.classList.remove('is-hidden');
-
-  try {
-    const res = await fetch(url, {
-      headers: { Authorization: `Bearer ${accessToken}` }
-    });
-
-    if (!res.ok) {
-      resultsOutput.textContent = `Album search error: ${res.status} ${res.statusText}`;
-      return;
-    }
-
-    const data  = await res.json();
-    const items = normalizeAlbumItems(data);
-    setResults('album', items);
-  } catch (err) {
-    resultsOutput.textContent = `Network error (albums): ${err.message}`;
-  }
-}
-/*****************************************************/
-
-
-/******************************************************
- *  SEARCH PLAYLISTS TO SPOTIFY
- ******************************************************/
-async function searchPlaylists(query) {
-  if (!accessToken) {
-    resultsOutput.textContent = 'Please log in with Spotify first.';
-    resultsSection.classList.remove('is-hidden');
-    return;
-  }
-
-  const encodedQuery = encodeURIComponent(query);
-  const url = `https://api.spotify.com/v1/search?type=playlist&q=${encodedQuery}&limit=10`;
-
-  resultsOutput.textContent = 'Searching playlists...';
-  resultsSection.classList.remove('is-hidden');
-
-  try {
-    const res = await fetch(url, {
-      headers: { Authorization: `Bearer ${accessToken}` }
-    });
-
-    if (!res.ok) {
-      resultsOutput.textContent = `Playlist search error: ${res.status} ${res.statusText}`;
-      return;
-    }
-
-    const data  = await res.json();
-    const items = normalizePlaylistItems(data);
-    setResults('playlist', items);
-  } catch (err) {
-    resultsOutput.textContent = `Network error (playlists): ${err.message}`;
-  }
-}
-/*****************************************************/
-
 
 
 /******************************************************
@@ -415,6 +272,9 @@ function updateUI() {
   profileBtn.disabled = !loggedIn;
 }
 /*****************************************************/
+
+
+
 
 
 
@@ -443,26 +303,6 @@ if (trackForm) {
     const query = trackQueryInput.value.trim();
     if (!query) return;
     searchTracks(query);
-  });
-}
-
-// Album search submit handler
-if (albumForm) {
-  albumForm.addEventListener('submit', (event) => {
-    event.preventDefault();
-    const query = albumQueryInput.value.trim();
-    if (!query) return;
-    searchAlbums(query);
-  });
-}
-
-// Playlist search submit handler
-if (playlistForm) {
-  playlistForm.addEventListener('submit', (event) => {
-    event.preventDefault();
-    const query = playlistQueryInput.value.trim();
-    if (!query) return;
-    searchPlaylists(query);
   });
 }
 
