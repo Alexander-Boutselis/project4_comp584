@@ -240,7 +240,6 @@ function renderResults() {
     if (resultsStatus) {
       resultsStatus.textContent = 'No results found.';
     }
-    resultsSection.classList.remove('is-hidden');
 
     // Clear any old tiles if there are no results
     if (resultsContainer) {
@@ -515,9 +514,9 @@ logoutBtn.addEventListener('click', logout);
 
 
 // Set up debug toggle once
-if (toggleResultsBtn && resultsSection) {
+if (toggleResultsBtn && resultsStatus) {
   toggleResultsBtn.addEventListener('click', () => {
-    resultsSection.classList.toggle('is-hidden');
+    resultsStatus.classList.toggle('is-hidden');
   });
 }
 
