@@ -225,6 +225,7 @@ function updateUI() {
 loginBtn.addEventListener('click', startLogin);
 logoutBtn.addEventListener('click', logout);
 profileBtn.addEventListener('click', fetchMyProfile);
+resultsSection.classList.remove('is-hidden');
 
 
 // Set up debug toggle once
