@@ -19,7 +19,7 @@ const toggleResultsBtn = document.getElementById('toggle-results-btn');
 
 // Result Area
 const resultsContainer = document.getElementById('results-container');
-const resultsSection   = document.querySelector('.result-section'); // NOTE: singular!
+const resultsSection   = document.querySelector('.result-section');
 const resultsStatus    = document.getElementById('results-status');
 
 // Track search elements
@@ -61,11 +61,11 @@ if (!tween) {
 
 let loadingAnimation = null;
 
-// Pulse the resultsStatus while a search is running
+//Pulse the resultsStatus while a search is running
 function startLoadingAnimation() {
   if (!resultsStatus || !tween) return;
 
-  // stop any previous animation
+  //stop any previous animation
   stopLoadingAnimation();
 
   resultsStatus.classList.add('loading');
@@ -96,7 +96,7 @@ function stopLoadingAnimation() {
   }
 }
 
-// Hover animation for each result tile
+//Hover animation for each result tile
 function attachTileHoverAnimation(tile) {
   if (!tween || !tile) return;
 
@@ -179,7 +179,7 @@ async function startLogin() {
   url.searchParams.set('code_challenge', codeChallenge);
   url.searchParams.set('scope', scopes);
 
-  // Send user to Spotify's authorize page
+  //Send user to Spotify's authorize page
   window.location.href = url.toString();
 }
 /*****************************************************/
@@ -193,22 +193,22 @@ async function handleRedirectCallback() {
   const code = params.get('code');
   const error = params.get('error');
 
-  // If Spotify sent an error (?error=access_denied, etc.)
+  //If Spotify sent an error (?error=access_denied, etc.)
   if (error) {
     output.textContent = `Error from Spotify: ${error}`;
     return;
   }
 
-  if (!code) return; // normal load, no redirect in progress
+  if (!code) return; //normal load, no redirect in progress
 
-  // Retrieve the code_verifier we generated before redirect
+  //Retrieve the code_verifier we generated before redirect
   const codeVerifier = localStorage.getItem('spotify_code_verifier');
   if (!codeVerifier) {
     output.textContent = 'Missing code_verifier. Try logging in again.';
     return;
   }
 
-  // Prepare the POST body for /api/token
+  //Prepare the POST body for /api/token
   const body = new URLSearchParams({
     client_id: clientId,
     grant_type: 'authorization_code',
@@ -217,7 +217,7 @@ async function handleRedirectCallback() {
     code_verifier: codeVerifier
   });
 
-  // Token request
+  //Token request
   const response = await fetch(tokenEndpoint, {
     method: 'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -233,10 +233,10 @@ async function handleRedirectCallback() {
   const data = await response.json();
   accessToken = data.access_token;
 
-  // Store token so you don't have to log in every refresh
+  //Store token so you don't have to log in every refresh
   localStorage.setItem('spotify_access_token', accessToken);
 
-  // Clean the ?code= from the URL bar
+  //Clean the ?code= from the URL bar
   window.history.replaceState({}, document.title, redirectUri);
 
   updateUI();
@@ -256,56 +256,30 @@ function restoreToken() {
 }
 
 function logout() {
-  // Clear auth
+  //Clear auth
   accessToken = null;
   localStorage.removeItem('spotify_access_token');
   output.textContent = '(Not logged in)';
 
-  // Clear any stored results
+  //Clear any stored results
   currentResults.type = null;
   currentResults.items = [];
 
-  // Reset results text
+  //Reset results text
   if (resultsStatus) {
     resultsStatus.textContent = '(Songs/Albums/Playlists will appear here)';
   }
 
-  // Stop any loading animation
+  //Stop any loading animation
   stopLoadingAnimation();
 
-  // Hide the result area again
+  //Hide the result area again
   if (resultsSection) {
     resultsSection.classList.add('is-hidden');
   }
 
-  // Update buttons, etc.
+  //Update buttons, etc.
   updateUI();
-}
-/*****************************************************/
-
-
-/******************************************************
- *  fetchMyProfile() 
- ******************************************************/
-async function fetchMyProfile() {
-  if (!accessToken) {
-    output.textContent = 'Not logged in.';
-    return;
-  }
-
-  const res = await fetch('https://api.spotify.com/v1/me', {
-    headers: {
-      Authorization: `Bearer ${accessToken}`
-    }
-  });
-
-  if (!res.ok) {
-    output.textContent = `API error: ${res.status} ${res.statusText}`;
-    return;
-  }
-
-  const json = await res.json();
-  output.textContent = JSON.stringify(json, null, 2);
 }
 /*****************************************************/
 
@@ -314,13 +288,13 @@ async function fetchMyProfile() {
  *  RESULT STATE + GENERIC RENDERING
  ******************************************************/
 function setResults(type, items) {
-  currentResults.type  = type;    // 'track' | 'album' | 'playlist'
+  currentResults.type  = type;    //'track' | 'album' | 'playlist'
   currentResults.items = items;
   renderResults();
 }
 
 function renderResults() {
-  // whenever we render, make sure loading stops
+  //stop loading animations when rendering
   stopLoadingAnimation();
 
   if (!currentResults.items || currentResults.items.length === 0) {
@@ -329,14 +303,14 @@ function renderResults() {
     }
     resultsSection.classList.remove('is-hidden');
 
-    // Clear any old tiles if there are no results
+    //Clear any old tiles if there are no results
     if (resultsContainer) {
       resultsContainer.innerHTML = '';
     }
     return;
   }
 
-  // Simple status line instead of the old text list
+  //Simple status line
   if (resultsStatus) {
     const count = currentResults.items.length;
     const typeLabel = currentResults.type ? `${currentResults.type}s` : 'items';
@@ -345,7 +319,7 @@ function renderResults() {
 
   resultsSection.classList.remove('is-hidden');
 
-  // Tiles handle the detailed display
+  //Tiles handle the detailed display
   renderTiles();
   console.log('Current results:', currentResults);
 }
@@ -354,20 +328,20 @@ function renderResults() {
 function renderTiles() {
   if (!resultsContainer) return;
 
-  // Clear old tiles
+  //Clear old tiles
   resultsContainer.innerHTML = '';
 
   currentResults.items.forEach((item, index) => {
-    // Outer tile
+    //Outer tile
     const tile = document.createElement('article');
     tile.className = 'result-tile';
 
-    // Left-side index number
+    //Left-side index number
     const indexSpan = document.createElement('span');
     indexSpan.className = 'tile-index';
     indexSpan.textContent = `${index + 1}.`;
 
-    // Image box
+    //Image box
     const imageDiv = document.createElement('div');
     imageDiv.className = 'tile-image';
 
@@ -378,16 +352,16 @@ function renderTiles() {
       imageDiv.style.backgroundPosition = 'center';
     }
 
-    // Text wrapper
+    //Text wrapper
     const textDiv = document.createElement('div');
     textDiv.className = 'tile-text';
 
-    // Title
+    //Title
     const titleEl = document.createElement('h3');
     titleEl.className = 'result-title';
     titleEl.textContent = item.title;
 
-    // Subtitle
+    //Subtitle
     const subtitleEl = document.createElement('p');
     subtitleEl.className = 'result-subtitle';
     const extraText = item.extra ? ` • ${item.extra}` : '';
@@ -396,12 +370,12 @@ function renderTiles() {
     textDiv.appendChild(titleEl);
     textDiv.appendChild(subtitleEl);
 
-    // Order: number | image | text
+    //Order: number | image | text
     tile.appendChild(indexSpan);
     tile.appendChild(imageDiv);
     tile.appendChild(textDiv);
 
-    // Click opens Spotify
+    //Click opens Spotify
     tile.addEventListener('click', () => {
       const url = buildSpotifyUrl(item);
       if (url) {
@@ -419,7 +393,7 @@ function renderTiles() {
 }
 
 
-// Helper to pull the best cover image depending on item type
+//Helper to pull the best cover image depending on item type
 function getImageUrlForItem(item) {
   const raw = item.raw;
   if (!raw) return FALLBACK_IMAGE_URL;
@@ -480,7 +454,7 @@ function normalizeTrackItems(data) {
         ? track.artists.map(a => a.name).filter(Boolean).join(', ')
         : 'Unknown artist',
       extra: track.album?.name || '',
-      raw: track          // keep full Spotify object for later
+      raw: track //keep full Spotify object for later
     }));
 }
 
@@ -507,7 +481,7 @@ function normalizePlaylistItems(data) {
   if (!Array.isArray(rawItems)) return [];
 
   return rawItems
-    .filter(pl => pl && typeof pl === 'object')   // drop any null/undefined entries
+    .filter(pl => pl && typeof pl === 'object') //drop any null/undefined entries
     .map(pl => ({
       id: pl.id ?? '',
       type: 'playlist',
@@ -679,14 +653,14 @@ function updateUI() {
 loginBtn.addEventListener('click', startLogin);
 logoutBtn.addEventListener('click', logout);
 
-// Debug toggle
+//Debug toggle
 if (toggleResultsBtn && resultsSection) {
   toggleResultsBtn.addEventListener('click', () => {
     resultsSection.classList.toggle('is-hidden');
   });
 }
 
-// Track search submit handler
+//Track search submit handler
 if (trackForm) {
   trackForm.addEventListener('submit', (event) => {
     event.preventDefault();
@@ -696,7 +670,7 @@ if (trackForm) {
   });
 }
 
-// Album search submit handler
+//Album search submit handler
 if (albumForm) {
   albumForm.addEventListener('submit', (event) => {
     event.preventDefault();
@@ -706,7 +680,7 @@ if (albumForm) {
   });
 }
 
-// Playlist search submit handler
+//Playlist search submit handler
 if (playlistForm) {
   playlistForm.addEventListener('submit', (event) => {
     event.preventDefault();
